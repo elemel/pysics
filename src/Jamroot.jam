@@ -15,7 +15,7 @@ use-project boost : /Users/elemel/boost_1_43_0 ;
 
 project : requirements <library>/boost/python//boost_python ;
 
-python-extension pysics_box2d : pysics_box2d.cpp /Users/elemel/box2d/Box2D/Box2D/libBox2D.a : <include>/Users/elemel/box2d/Box2D ;
+python-extension pysics : pysics.cpp /Users/elemel/box2d/Box2D/Box2D/libBox2D.a : <include>/Users/elemel/box2d/Box2D ;
 
 local rule run-test ( test-name : sources + )
 {
@@ -23,4 +23,4 @@ local rule run-test ( test-name : sources + )
     testing.make-test run-pyd : $(sources) : : $(test-name) ;
 }
 
-run-test test_pysics_box2d : test_pysics_box2d.py pysics_box2d ;
+run-test test_pysics : test_pysics.py pysics ;
