@@ -19,7 +19,7 @@ b2ContactEdge* (b2Body::*b2BodyGetContactList)() = &b2Body::GetContactList;
 b2Body* (b2Body::*b2BodyGetNext)() = &b2Body::GetNext;
 b2World* (b2Body::*b2BodyGetWorld)() = &b2Body::GetWorld;
 
-BOOST_PYTHON_MODULE(pysics_box2d)
+BOOST_PYTHON_MODULE(box2d)
 {
 	class_<b2World>("World", init<const b2Vec2&, bool>())
         .def("create_body", &b2World::CreateBody, return_internal_reference<>())
