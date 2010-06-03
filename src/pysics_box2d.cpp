@@ -21,41 +21,41 @@ b2World* (b2Body::*b2BodyGetWorld)() = &b2Body::GetWorld;
 
 BOOST_PYTHON_MODULE(pysics_box2d)
 {
-	class_<b2World>("b2World", init<const b2Vec2&, bool>())
-        .def("CreateBody", &b2World::CreateBody, return_internal_reference<>())
-		.def("DestroyBody", &b2World::DestroyBody)
+	class_<b2World>("World", init<const b2Vec2&, bool>())
+        .def("create_body", &b2World::CreateBody, return_internal_reference<>())
+		.def("destroy_body", &b2World::DestroyBody)
     ;
 
-    class_<b2Vec2>("b2Vec2", init<float32, float32>())
+    class_<b2Vec2>("Vec2", init<float32, float32>())
         .def_readwrite("x", &b2Vec2::x)
         .def_readwrite("y", &b2Vec2::y)
     ;
 
-	enum_<b2BodyType>("b2BodyType")
-		.value("b2_staticBody", b2_staticBody)
-		.value("b2_kinematicBody", b2_kinematicBody)
-		.value("b2_dynamicBody", b2_dynamicBody)
+	enum_<b2BodyType>("BodyType")
+		.value("static_body", b2_staticBody)
+		.value("kinematic_body", b2_kinematicBody)
+		.value("dynamic_body", b2_dynamicBody)
 		.export_values()
     ;
     
-	class_<b2BodyDef>("b2BodyDef")
-		.def_readwrite("userData", &b2BodyDef::userData)
+	class_<b2BodyDef>("BodyDef")
+		.def_readwrite("user_data", &b2BodyDef::userData)
 		.def_readwrite("position", &b2BodyDef::position)
 		.def_readwrite("angle", &b2BodyDef::angle)
-		.def_readwrite("linearVelocity", &b2BodyDef::linearVelocity)
-		.def_readwrite("angularVelocity", &b2BodyDef::angularVelocity)
-		.def_readwrite("linearDamping", &b2BodyDef::linearDamping)
-		.def_readwrite("angularDamping", &b2BodyDef::angularDamping)
-		.def_readwrite("allowSleep", &b2BodyDef::allowSleep)
+		.def_readwrite("linear_velocity", &b2BodyDef::linearVelocity)
+		.def_readwrite("angular_velocity", &b2BodyDef::angularVelocity)
+		.def_readwrite("linear_damping", &b2BodyDef::linearDamping)
+		.def_readwrite("angular_damping", &b2BodyDef::angularDamping)
+		.def_readwrite("allow_sleep", &b2BodyDef::allowSleep)
 		.def_readwrite("awake", &b2BodyDef::awake)
-		.def_readwrite("fixedRotation", &b2BodyDef::fixedRotation)
+		.def_readwrite("fixed_rotation", &b2BodyDef::fixedRotation)
 		.def_readwrite("bullet", &b2BodyDef::bullet)
 		.def_readwrite("type", &b2BodyDef::type)
 		.def_readwrite("active", &b2BodyDef::active)
-		.def_readwrite("inertiaScale", &b2BodyDef::inertiaScale)
+		.def_readwrite("inertia_scale", &b2BodyDef::inertiaScale)
 	;
 
-	class_<b2Body, boost::noncopyable>("b2Body", no_init)
+	class_<b2Body, boost::noncopyable>("Body", no_init)
 		.def("CreateFixture", b2BodyCreateFixture1, return_internal_reference<>())
 		.def("CreateFixture", b2BodyCreateFixture2, return_internal_reference<>())
 		.def("DestroyFixture", &b2Body::DestroyFixture)
@@ -71,7 +71,7 @@ BOOST_PYTHON_MODULE(pysics_box2d)
 		.def("GetAngularVelocity", &b2Body::GetAngularVelocity)
 		.def("ApplyForce", &b2Body::ApplyForce)
 		.def("ApplyTorque", &b2Body::ApplyTorque)
-		.def("ApplyImpulse", &b2Body::ApplyImpulse)
+		// .def("ApplyImpulse", &b2Body::ApplyImpulse)
 		.def("GetMass", &b2Body::GetMass)
 		.def("GetInertia", &b2Body::GetInertia)
 		.def("GetMassData", &b2Body::GetMassData)
@@ -108,15 +108,15 @@ BOOST_PYTHON_MODULE(pysics_box2d)
 		.def("GetWorld", b2BodyGetWorld, return_internal_reference<>())
 	;
 
-	class_<b2FixtureDef>("b2FixtureDef")
+	class_<b2FixtureDef>("FixtureDef")
 	;
 
-	class_<b2Fixture, boost::noncopyable>("b2Fixture", no_init)
+	class_<b2Fixture, boost::noncopyable>("Fixture", no_init)
 	;
 
-	class_<b2CircleShape>("b2CircleShape")
+	class_<b2CircleShape>("CircleShape")
 	;
 
-	class_<b2PolygonShape>("b2PolygonShape")
+	class_<b2PolygonShape>("PolygonShape")
 	;
 }
