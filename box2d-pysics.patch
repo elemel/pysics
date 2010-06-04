@@ -1,0 +1,102 @@
+Index: Box2D/CMakeLists.txt
+===================================================================
+--- Box2D/CMakeLists.txt	(revision 109)
++++ Box2D/CMakeLists.txt	(working copy)
+@@ -16,6 +16,9 @@
+ 
+ set(BOX2D_VERSION 2.1.0)
+ 
++include_directories(/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6)
++include_directories(/Users/elemel/boost_1_43_0)
++
+ # The Box2D library.
+ add_subdirectory(Box2D)
+ 
+Index: Box2D/Box2D/Dynamics/b2Body.h
+===================================================================
+--- Box2D/Box2D/Dynamics/b2Body.h	(revision 109)
++++ Box2D/Box2D/Dynamics/b2Body.h	(working copy)
+@@ -22,7 +22,7 @@
+ #include <Box2D/Common/b2Math.h>
+ #include <Box2D/Collision/Shapes/b2Shape.h>
+ #include <memory>
+-
++
+ class b2Fixture;
+ class b2Joint;
+ class b2Contact;
+@@ -50,7 +50,7 @@
+ 	/// This constructor sets the body definition default values.
+ 	b2BodyDef()
+ 	{
+-		userData = NULL;
++		userData = b2UserData();
+ 		position.Set(0.0f, 0.0f);
+ 		angle = 0.0f;
+ 		linearVelocity.Set(0.0f, 0.0f);
+@@ -113,7 +113,7 @@
+ 	bool active;
+ 
+ 	/// Use this to store application specific body data.
+-	void* userData;
++	b2UserData userData;
+ 
+ 	/// Experimental: scales the inertia tensor.
+ 	float32 inertiaScale;
+@@ -353,10 +353,10 @@
+ 	const b2Body* GetNext() const;
+ 
+ 	/// Get the user data pointer that was provided in the body definition.
+-	void* GetUserData() const;
++	b2UserData GetUserData() const;
+ 
+ 	/// Set the user data. Use this to store your application specific data.
+-	void SetUserData(void* data);
++	void SetUserData(b2UserData data);
+ 
+ 	/// Get the parent world of this body.
+ 	b2World* GetWorld();
+@@ -439,7 +439,7 @@
+ 
+ 	float32 m_sleepTime;
+ 
+-	void* m_userData;
++	b2UserData m_userData;
+ };
+ 
+ inline b2BodyType b2Body::GetType() const
+@@ -704,12 +704,12 @@
+ 	return m_next;
+ }
+ 
+-inline void b2Body::SetUserData(void* data)
++inline void b2Body::SetUserData(b2UserData data)
+ {
+ 	m_userData = data;
+ }
+ 
+-inline void* b2Body::GetUserData() const
++inline b2UserData b2Body::GetUserData() const
+ {
+ 	return m_userData;
+ }
+Index: Box2D/Box2D/Common/b2Settings.h
+===================================================================
+--- Box2D/Box2D/Common/b2Settings.h	(revision 109)
++++ Box2D/Box2D/Common/b2Settings.h	(working copy)
+@@ -21,6 +21,7 @@
+ 
+ #include <cassert>
+ #include <cmath>
++#include <boost/python.hpp>
+ 
+ #define B2_NOT_USED(x) ((void)(x))
+ #define b2Assert(A) assert(A)
+@@ -147,5 +148,7 @@
+ {
+ 	return restitution1 > restitution2 ? restitution1 : restitution2;
+ }
++
++typedef boost::python::handle<> b2UserData;
+ 
+ #endif
