@@ -18,6 +18,9 @@ b2JointEdge* (b2Body::*b2BodyGetJointList)() = &b2Body::GetJointList;
 b2ContactEdge* (b2Body::*b2BodyGetContactList)() = &b2Body::GetContactList;
 b2Body* (b2Body::*b2BodyGetNext)() = &b2Body::GetNext;
 b2World* (b2Body::*b2BodyGetWorld)() = &b2Body::GetWorld;
+b2Shape* (b2Fixture::*b2FixtureGetShape)() = &b2Fixture::GetShape;
+b2Body* (b2Fixture::*b2FixtureGetBody)() = &b2Fixture::GetBody;
+b2Fixture* (b2Fixture::*b2FixtureGetNext)() = &b2Fixture::GetNext;
 
 BOOST_PYTHON_MODULE(pysics)
 {
@@ -120,10 +123,37 @@ BOOST_PYTHON_MODULE(pysics)
         .add_property("world", make_function(b2BodyGetWorld, return_internal_reference<>()))
     ;
 
+    class_<b2Filter>("Filter")
+        .def_readwrite("category_bits", &b2Filter::categoryBits)
+        .def_readwrite("mask_bits", &b2Filter::maskBits)
+        .def_readwrite("group_index", &b2Filter::groupIndex)
+    ;
+
     class_<b2FixtureDef>("FixtureDef")
+        .def_readwrite("shape", &b2FixtureDef::shape)
+        .def_readwrite("user_data", &b2FixtureDef::userData)
+        .def_readwrite("friction", &b2FixtureDef::friction)
+        .def_readwrite("restitution", &b2FixtureDef::restitution)
+        .def_readwrite("density", &b2FixtureDef::density)
+        .def_readwrite("sensor", &b2FixtureDef::isSensor)
+        .def_readwrite("filter", &b2FixtureDef::filter)
     ;
 
     class_<b2Fixture, boost::noncopyable>("Fixture", no_init)
+        .add_property("type", &b2Fixture::GetType)
+        .add_property("shape", make_function(b2FixtureGetShape, return_internal_reference<>()))
+        .add_property("sensor", &b2Fixture::IsSensor, &b2Fixture::SetSensor)
+        .add_property("filter_data", make_function(&b2Fixture::GetFilterData, return_value_policy<copy_const_reference>()), &b2Fixture::SetFilterData)
+        .add_property("body", make_function(b2FixtureGetBody, return_internal_reference<>()))
+        .add_property("next", make_function(b2FixtureGetNext, return_internal_reference<>()))
+        .add_property("user_data", &b2Fixture::GetUserData, &b2Fixture::SetUserData)
+        .def("test_point", &b2Fixture::TestPoint)
+        .def("ray_cast", &b2Fixture::RayCast)
+        .def("get_mass_data", &b2Fixture::GetMassData)
+        .add_property("density", &b2Fixture::GetDensity, &b2Fixture::SetDensity)
+        .add_property("friction", &b2Fixture::GetFriction, &b2Fixture::SetFriction)
+        .add_property("restitution", &b2Fixture::GetRestitution, &b2Fixture::SetRestitution)
+        .def("get_aabb", make_function(&b2Fixture::GetAABB, return_value_policy<copy_const_reference>()))
     ;
 
     class_<b2CircleShape>("CircleShape")
