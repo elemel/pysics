@@ -9,21 +9,10 @@
 #include <Box2D/Dynamics/Contacts/b2Contact.h>
 #include <Box2D/Dynamics/Joints/b2Joint.h>
 
-using namespace boost::python;
-
-b2Fixture* (b2Body::*b2BodyCreateFixture1)(const b2FixtureDef*) = &b2Body::CreateFixture;
-b2Fixture* (b2Body::*b2BodyCreateFixture2)(const b2Shape*, float32) = &b2Body::CreateFixture;
-b2Fixture* (b2Body::*b2BodyGetFixtureList)() = &b2Body::GetFixtureList;
-b2JointEdge* (b2Body::*b2BodyGetJointList)() = &b2Body::GetJointList;
-b2ContactEdge* (b2Body::*b2BodyGetContactList)() = &b2Body::GetContactList;
-b2Body* (b2Body::*b2BodyGetNext)() = &b2Body::GetNext;
-b2World* (b2Body::*b2BodyGetWorld)() = &b2Body::GetWorld;
-b2Shape* (b2Fixture::*b2FixtureGetShape)() = &b2Fixture::GetShape;
-b2Body* (b2Fixture::*b2FixtureGetBody)() = &b2Fixture::GetBody;
-b2Fixture* (b2Fixture::*b2FixtureGetNext)() = &b2Fixture::GetNext;
-
-BOOST_PYTHON_MODULE(pysics)
+void wrap_world()
 {
+    using namespace boost::python;
+
     class_<b2World>("World", init<const b2Vec2&, bool>())
         .def("set_destruction_listener", &b2World::SetDestructionListener)
         .def("set_contact_filter", &b2World::SetContactFilter)
@@ -52,11 +41,21 @@ BOOST_PYTHON_MODULE(pysics)
         .add_property("auto_clear_forces", &b2World::GetAutoClearForces, &b2World::SetAutoClearForces)
         .add_property("contact_manager", make_function(&b2World::GetContactManager, return_internal_reference<>()))
     ;
+}
+
+void wrap_vec_2()
+{
+    using namespace boost::python;
 
     class_<b2Vec2>("Vec2", init<float32, float32>())
         .def_readwrite("x", &b2Vec2::x)
         .def_readwrite("y", &b2Vec2::y)
     ;
+}
+
+void wrap_body_type()
+{
+    using namespace boost::python;
 
     enum_<b2BodyType>("BodyType")
         .value("STATIC_BODY", b2_staticBody)
@@ -64,7 +63,12 @@ BOOST_PYTHON_MODULE(pysics)
         .value("DYNAMIC_BODY", b2_dynamicBody)
         .export_values()
     ;
-    
+}
+
+void wrap_body_def()
+{
+    using namespace boost::python;
+
     class_<b2BodyDef>("BodyDef")
         .def_readwrite("user_data", &b2BodyDef::userData)
         .def_readwrite("position", &b2BodyDef::position)
@@ -81,10 +85,23 @@ BOOST_PYTHON_MODULE(pysics)
         .def_readwrite("active", &b2BodyDef::active)
         .def_readwrite("inertia_scale", &b2BodyDef::inertiaScale)
     ;
+}
+
+void wrap_body()
+{
+    using namespace boost::python;
+
+    b2Fixture* (b2Body::*create_fixture_1)(const b2FixtureDef*) = &b2Body::CreateFixture;
+    b2Fixture* (b2Body::*create_fixture_2)(const b2Shape*, float32) = &b2Body::CreateFixture;
+    b2Fixture* (b2Body::*get_fixture_list)() = &b2Body::GetFixtureList;
+    b2JointEdge* (b2Body::*get_joint_list)() = &b2Body::GetJointList;
+    b2ContactEdge* (b2Body::*get_contact_list)() = &b2Body::GetContactList;
+    b2Body* (b2Body::*get_next)() = &b2Body::GetNext;
+    b2World* (b2Body::*get_world)() = &b2Body::GetWorld;
 
     class_<b2Body, boost::noncopyable>("Body", no_init)
-        .def("create_fixture", b2BodyCreateFixture1, return_internal_reference<>())
-        .def("create_fixture", b2BodyCreateFixture2, return_internal_reference<>())
+        .def("create_fixture", create_fixture_1, return_internal_reference<>())
+        .def("create_fixture", create_fixture_2, return_internal_reference<>())
         .def("destroy_fixture", &b2Body::DestroyFixture)
         .add_property("transform", make_function(&b2Body::GetTransform, return_value_policy<copy_const_reference>()), &b2Body::SetTransform)
         .add_property("position", make_function(&b2Body::GetPosition, return_value_policy<copy_const_reference>()))
@@ -115,19 +132,29 @@ BOOST_PYTHON_MODULE(pysics)
         .add_property("awake", &b2Body::IsAwake, &b2Body::SetAwake)
         .add_property("active", &b2Body::IsActive, &b2Body::SetActive)
         .add_property("fixed_rotation", &b2Body::IsFixedRotation, &b2Body::SetFixedRotation)
-        .add_property("fixture_list", make_function(b2BodyGetFixtureList, return_internal_reference<>()))
-        .add_property("joint_list", make_function(b2BodyGetJointList, return_internal_reference<>()))
-        .add_property("contact_list", make_function(b2BodyGetContactList, return_internal_reference<>()))
-        .add_property("next", make_function(b2BodyGetNext, return_internal_reference<>()))
+        .add_property("fixture_list", make_function(get_fixture_list, return_internal_reference<>()))
+        .add_property("joint_list", make_function(get_joint_list, return_internal_reference<>()))
+        .add_property("contact_list", make_function(get_contact_list, return_internal_reference<>()))
+        .add_property("next", make_function(get_next, return_internal_reference<>()))
         .add_property("user_data", &b2Body::GetUserData, &b2Body::SetUserData)
-        .add_property("world", make_function(b2BodyGetWorld, return_internal_reference<>()))
+        .add_property("world", make_function(get_world, return_internal_reference<>()))
     ;
+}
+
+void wrap_filter()
+{
+    using namespace boost::python;
 
     class_<b2Filter>("Filter")
         .def_readwrite("category_bits", &b2Filter::categoryBits)
         .def_readwrite("mask_bits", &b2Filter::maskBits)
         .def_readwrite("group_index", &b2Filter::groupIndex)
     ;
+}
+
+void wrap_fixture_def()
+{
+    using namespace boost::python;
 
     class_<b2FixtureDef>("FixtureDef")
         .def_readwrite("shape", &b2FixtureDef::shape)
@@ -138,14 +165,23 @@ BOOST_PYTHON_MODULE(pysics)
         .def_readwrite("sensor", &b2FixtureDef::isSensor)
         .def_readwrite("filter", &b2FixtureDef::filter)
     ;
+}
+
+void wrap_fixture()
+{
+    using namespace boost::python;
+
+    b2Shape* (b2Fixture::*get_shape)() = &b2Fixture::GetShape;
+    b2Body* (b2Fixture::*get_body)() = &b2Fixture::GetBody;
+    b2Fixture* (b2Fixture::*get_next)() = &b2Fixture::GetNext;
 
     class_<b2Fixture, boost::noncopyable>("Fixture", no_init)
         .add_property("type", &b2Fixture::GetType)
-        .add_property("shape", make_function(b2FixtureGetShape, return_internal_reference<>()))
+        .add_property("shape", make_function(get_shape, return_internal_reference<>()))
         .add_property("sensor", &b2Fixture::IsSensor, &b2Fixture::SetSensor)
         .add_property("filter_data", make_function(&b2Fixture::GetFilterData, return_value_policy<copy_const_reference>()), &b2Fixture::SetFilterData)
-        .add_property("body", make_function(b2FixtureGetBody, return_internal_reference<>()))
-        .add_property("next", make_function(b2FixtureGetNext, return_internal_reference<>()))
+        .add_property("body", make_function(get_body, return_internal_reference<>()))
+        .add_property("next", make_function(get_next, return_internal_reference<>()))
         .add_property("user_data", &b2Fixture::GetUserData, &b2Fixture::SetUserData)
         .def("test_point", &b2Fixture::TestPoint)
         .def("ray_cast", &b2Fixture::RayCast)
@@ -155,10 +191,34 @@ BOOST_PYTHON_MODULE(pysics)
         .add_property("restitution", &b2Fixture::GetRestitution, &b2Fixture::SetRestitution)
         .def("get_aabb", make_function(&b2Fixture::GetAABB, return_value_policy<copy_const_reference>()))
     ;
+}
+
+void wrap_circle_shape()
+{
+    using namespace boost::python;
 
     class_<b2CircleShape>("CircleShape")
     ;
+}
+
+void wrap_polygon_shape()
+{
+    using namespace boost::python;
 
     class_<b2PolygonShape>("PolygonShape")
     ;
+}
+
+BOOST_PYTHON_MODULE(pysics)
+{
+    wrap_world();
+    wrap_vec_2();
+    wrap_body_type();
+    wrap_body_def();
+    wrap_body();
+    wrap_filter();
+    wrap_fixture_def();
+    wrap_fixture();
+    wrap_circle_shape();
+    wrap_polygon_shape();
 }
