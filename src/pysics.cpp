@@ -2,12 +2,101 @@
 #include <boost/python.hpp>
 
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
+#include <Box2D/Collision/Shapes/b2EdgeShape.h>
+#include <Box2D/Collision/Shapes/b2LoopShape.h>
 #include <Box2D/Collision/Shapes/b2PolygonShape.h>
+#include <Box2D/Collision/Shapes/b2Shape.h>
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Dynamics/b2Fixture.h>
 #include <Box2D/Dynamics/b2World.h>
 #include <Box2D/Dynamics/Contacts/b2Contact.h>
 #include <Box2D/Dynamics/Joints/b2Joint.h>
+
+float32 vec_2_getitem(const b2Vec2 &v, int32 index)
+{
+    if (index >= 0 && index < 2) {
+        return v(index);
+    } else {
+        throw std::out_of_range("Vec2 index out of range");
+    }
+}
+
+void vec_2_setitem(b2Vec2 &v, int32 index, float32 value)
+{
+    if (index >= 0 && index < 2) {
+        v(index) = value;
+    } else {
+        throw std::out_of_range("Vec2 index out of range");
+    }
+}
+
+int vec_2_len(b2Vec2 &v)
+{
+    return 2;
+}
+
+float32 *vec_2_begin(b2Vec2 &v)
+{
+    return &v.x;
+}
+
+float32 *vec_2_end(b2Vec2 &v)
+{
+    return &v.x + 2;
+}
+
+std::string vec_2_repr(const b2Vec2 &v)
+{
+    std::ostringstream out;
+    out << "Vec2(" << v.x << ", " << v.y << ")";
+    return out.str();
+}
+
+void wrap_vec_2()
+{
+    using namespace boost::python;
+
+    class_<b2Vec2>("Vec2", init<float32, float32>())
+        .def("set_zero", &b2Vec2::SetZero)
+        .def("set", &b2Vec2::Set)
+        .def(-self)
+        .def("__getitem__", &vec_2_getitem)
+        .def("__setitem__", &vec_2_setitem)
+        .def(self += self)
+        .def(self -= self)
+        .def(self *= float32())
+        .add_property("length", &b2Vec2::Length)
+        .add_property("length_squared", &b2Vec2::LengthSquared)
+        .def("normalize", &b2Vec2::Normalize)
+        .add_property("valid", &b2Vec2::IsValid)
+        .def_readwrite("x", &b2Vec2::x)
+        .def_readwrite("y", &b2Vec2::y)
+        .def("__len__", &vec_2_len)
+        .def("__iter__", range(&vec_2_begin, &vec_2_end))
+        .def("__repr__", &vec_2_repr)
+        .def(self + self)
+        .def(self - self)
+        .def(float32() * self)
+        .def(self == self)
+    ;
+}
+
+void wrap_math()
+{
+    using namespace boost::python;
+
+    float32 (*dot)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
+    float32 (*cross_1)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
+    float32 (*cross_2)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
+    float32 (*cross_3)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
+
+    def("dot", dot);
+    def("cross", cross_1);
+    def("cross", cross_2);
+    def("cross", cross_3);
+    def("distance", &b2Distance);
+    def("distance_squared", &b2DistanceSquared);
+}
 
 void wrap_world()
 {
@@ -40,16 +129,6 @@ void wrap_world()
         .add_property("locked", &b2World::IsLocked)
         .add_property("auto_clear_forces", &b2World::GetAutoClearForces, &b2World::SetAutoClearForces)
         .add_property("contact_manager", make_function(&b2World::GetContactManager, return_internal_reference<>()))
-    ;
-}
-
-void wrap_vec_2()
-{
-    using namespace boost::python;
-
-    class_<b2Vec2>("Vec2", init<float32, float32>())
-        .def_readwrite("x", &b2Vec2::x)
-        .def_readwrite("y", &b2Vec2::y)
     ;
 }
 
@@ -91,13 +170,13 @@ void wrap_body()
 {
     using namespace boost::python;
 
-    b2Fixture* (b2Body::*create_fixture_1)(const b2FixtureDef*) = &b2Body::CreateFixture;
-    b2Fixture* (b2Body::*create_fixture_2)(const b2Shape*, float32) = &b2Body::CreateFixture;
-    b2Fixture* (b2Body::*get_fixture_list)() = &b2Body::GetFixtureList;
-    b2JointEdge* (b2Body::*get_joint_list)() = &b2Body::GetJointList;
-    b2ContactEdge* (b2Body::*get_contact_list)() = &b2Body::GetContactList;
-    b2Body* (b2Body::*get_next)() = &b2Body::GetNext;
-    b2World* (b2Body::*get_world)() = &b2Body::GetWorld;
+    b2Fixture *(b2Body::*create_fixture_1)(const b2FixtureDef *) = &b2Body::CreateFixture;
+    b2Fixture *(b2Body::*create_fixture_2)(const b2Shape *, float32) = &b2Body::CreateFixture;
+    b2Fixture *(b2Body::*get_fixture_list)() = &b2Body::GetFixtureList;
+    b2JointEdge *(b2Body::*get_joint_list)() = &b2Body::GetJointList;
+    b2ContactEdge *(b2Body::*get_contact_list)() = &b2Body::GetContactList;
+    b2Body *(b2Body::*get_next)() = &b2Body::GetNext;
+    b2World *(b2Body::*get_world)() = &b2Body::GetWorld;
 
     class_<b2Body, boost::noncopyable>("Body", no_init)
         .def("create_fixture", create_fixture_1, return_internal_reference<>())
@@ -171,9 +250,9 @@ void wrap_fixture()
 {
     using namespace boost::python;
 
-    b2Shape* (b2Fixture::*get_shape)() = &b2Fixture::GetShape;
-    b2Body* (b2Fixture::*get_body)() = &b2Fixture::GetBody;
-    b2Fixture* (b2Fixture::*get_next)() = &b2Fixture::GetNext;
+    b2Shape *(b2Fixture::*get_shape)() = &b2Fixture::GetShape;
+    b2Body *(b2Fixture::*get_body)() = &b2Fixture::GetBody;
+    b2Fixture *(b2Fixture::*get_next)() = &b2Fixture::GetNext;
 
     class_<b2Fixture, boost::noncopyable>("Fixture", no_init)
         .add_property("type", &b2Fixture::GetType)
@@ -193,11 +272,69 @@ void wrap_fixture()
     ;
 }
 
+void wrap_mass_data()
+{
+    using namespace boost::python;
+
+    class_<b2MassData>("MassData")
+        .def_readwrite("mass", &b2MassData::mass)
+        .def_readwrite("center", &b2MassData::center)
+        .def_readwrite("inertia", &b2MassData::I)
+    ;
+}
+
+void wrap_shape_type()
+{
+    using namespace boost::python;
+
+    enum_<b2Shape::Type>("ShapeType")
+        .value("UNKNOWN_SHAPE", b2Shape::e_unknown)
+        .value("CIRCLE_SHAPE", b2Shape::e_circle)
+        .value("EDGE_SHAPE", b2Shape::e_edge)
+        .value("POLYGON_SHAPE", b2Shape::e_polygon)
+        .value("LOOP_SHAPE", b2Shape::e_loop)
+        .export_values()
+    ;
+}
+
+void wrap_shape()
+{
+    using namespace boost::python;
+
+    class_<b2Shape, boost::noncopyable>("Shape", no_init)
+        .def("clone", pure_virtual(&b2Shape::Clone), return_value_policy<manage_new_object>())
+        .add_property("type", &b2Shape::GetType)
+        // .def("get_child_count", pure_virtual(&b2Shape::GetChildCount))
+        .def("test_point", pure_virtual(&b2Shape::TestPoint))
+        .def("ray_cast", pure_virtual(&b2Shape::RayCast))
+        .def("compute_aabb", pure_virtual(&b2Shape::ComputeAABB))
+        .def("compute_mass", pure_virtual(&b2Shape::ComputeMass))
+        .def_readonly("radius", &b2Shape::m_radius)
+    ;
+}
+
 void wrap_circle_shape()
 {
     using namespace boost::python;
 
-    class_<b2CircleShape>("CircleShape")
+    class_<b2CircleShape, bases<b2Shape> >("CircleShape")
+        .add_property("child_count", &b2CircleShape::GetChildCount)
+        .def("get_support", &b2CircleShape::GetSupport)
+        .def("get_support_vertex", &b2CircleShape::GetSupportVertex, return_value_policy<copy_const_reference>())
+        .add_property("vertex_count", &b2CircleShape::GetVertexCount)
+        .def("get_vertex", &b2CircleShape::GetVertex, return_value_policy<copy_const_reference>())
+        .def_readonly("position", &b2CircleShape::m_p)
+    ;
+}
+
+void wrap_edge_shape()
+{
+    using namespace boost::python;
+
+    class_<b2EdgeShape, bases<b2Shape> >("EdgeShape")
+        .add_property("child_count", &b2EdgeShape::GetChildCount)
+        .def_readwrite("vertex_1", &b2EdgeShape::m_vertex1)
+        .def_readwrite("vertex_2", &b2EdgeShape::m_vertex2)
     ;
 }
 
@@ -205,20 +342,39 @@ void wrap_polygon_shape()
 {
     using namespace boost::python;
 
-    class_<b2PolygonShape>("PolygonShape")
+    class_<b2PolygonShape, bases<b2Shape> >("PolygonShape")
+        .add_property("child_count", &b2PolygonShape::GetChildCount)
+        .add_property("vertex_count", &b2PolygonShape::GetVertexCount)
+        .def("get_vertex", &b2PolygonShape::GetVertex, return_value_policy<copy_const_reference>())
+    ;
+}
+
+void wrap_loop_shape()
+{
+    using namespace boost::python;
+
+    class_<b2LoopShape, bases<b2Shape> >("LoopShape")
+        .add_property("child_count", &b2LoopShape::GetChildCount)
+        .def("get_child_edge", &b2LoopShape::GetChildEdge)
     ;
 }
 
 BOOST_PYTHON_MODULE(pysics)
 {
-    wrap_world();
     wrap_vec_2();
+    wrap_math();
+    wrap_world();
     wrap_body_type();
     wrap_body_def();
     wrap_body();
     wrap_filter();
     wrap_fixture_def();
     wrap_fixture();
+    wrap_mass_data();
+    wrap_shape_type();
+    wrap_shape();
     wrap_circle_shape();
+    wrap_edge_shape();
     wrap_polygon_shape();
+    wrap_loop_shape();
 }
