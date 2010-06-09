@@ -15,7 +15,7 @@ use-project boost : /Users/elemel/boost_1_43_0 ;
 
 project : requirements <library>/boost/python//boost_python ;
 
-python-extension pysics : pysics.cpp /Users/elemel/box2d-github/Box2D/Box2D/libBox2D.a : <include>/Users/elemel/box2d-github/Box2D ;
+python-extension pysics : pysics.cpp ext/box2d/Box2D/Box2D/libBox2D.a : <include>ext/box2d/Box2D ;
 
 local rule run-test ( test-name : sources + )
 {
