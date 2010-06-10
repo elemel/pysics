@@ -1,3 +1,6 @@
 [submodule "src/ext/box2d"]
 	path = src/ext/box2d
 	url = git://github.com/elemel/box2d
+[submodule "src/ext/boost-python"]
+	path = src/ext/boost-python
+	url = git://github.com/elemel/boost-python

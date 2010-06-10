@@ -10,7 +10,7 @@ if ! [ python.configured ] {
     using python ;
 }
 
-use-project boost : /Users/elemel/boost-python ;
+use-project boost : ../ext/boost-python ;
 
 project : requirements <library>/boost/python//boost_python ;
 
