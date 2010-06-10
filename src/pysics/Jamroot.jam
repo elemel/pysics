@@ -4,21 +4,19 @@ feature.set-default threading : multi ;
 
 import python ;
 
-if ! [ python.configured ]
-{
+if ! [ python.configured ] {
     ECHO "notice: no Python configured in user-config.jam" ;
     ECHO "notice: will use default configuration" ;
     using python ;
 }
 
-use-project boost : /Users/elemel/boost_1_43_0 ;
+use-project boost : /Users/elemel/boost-python ;
 
 project : requirements <library>/boost/python//boost_python ;
 
-python-extension pysics : pysics.cpp ext/box2d/Box2D/Box2D/libBox2D.a : <include>ext/box2d/Box2D ;
+python-extension pysics : pysics.cpp ../ext/box2d/Box2D/Box2D/libBox2D.a : <include>../ext/box2d/Box2D ;
 
-local rule run-test ( test-name : sources + )
-{
+local rule run-test ( test-name : sources + ) {
     import testing ;
     testing.make-test run-pyd : $(sources) : : $(test-name) ;
 }
