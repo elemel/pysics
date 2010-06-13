@@ -12,6 +12,8 @@
 #include <Box2D/Dynamics/Contacts/b2Contact.h>
 #include <Box2D/Dynamics/Joints/b2Joint.h>
 
+using namespace boost::python;
+
 float32 vec_2_getitem(const b2Vec2 &v, int32 index)
 {
     if (index >= 0 && index < 2) {
@@ -54,8 +56,6 @@ std::string vec_2_repr(const b2Vec2 &v)
 
 void wrap_vec_2()
 {
-    using namespace boost::python;
-
     class_<b2Vec2>("Vec2", init<float32, float32>())
         .def("set_zero", &b2Vec2::SetZero)
         .def("set", &b2Vec2::Set)
@@ -83,8 +83,6 @@ void wrap_vec_2()
 
 void wrap_math()
 {
-    using namespace boost::python;
-
     float32 (*dot)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
     float32 (*cross_1)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
     float32 (*cross_2)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
@@ -100,8 +98,6 @@ void wrap_math()
 
 void wrap_world()
 {
-    using namespace boost::python;
-
     class_<b2World>("World", init<const b2Vec2&, bool>())
         .def("set_destruction_listener", &b2World::SetDestructionListener)
         .def("set_contact_filter", &b2World::SetContactFilter)
@@ -134,8 +130,6 @@ void wrap_world()
 
 void wrap_body_type()
 {
-    using namespace boost::python;
-
     enum_<b2BodyType>("BodyType")
         .value("STATIC_BODY", b2_staticBody)
         .value("KINEMATIC_BODY", b2_kinematicBody)
@@ -146,8 +140,6 @@ void wrap_body_type()
 
 void wrap_body_def()
 {
-    using namespace boost::python;
-
     class_<b2BodyDef>("BodyDef")
         .def_readwrite("user_data", &b2BodyDef::userData)
         .def_readwrite("position", &b2BodyDef::position)
@@ -168,8 +160,6 @@ void wrap_body_def()
 
 void wrap_body()
 {
-    using namespace boost::python;
-
     b2Fixture *(b2Body::*create_fixture_1)(const b2FixtureDef *) = &b2Body::CreateFixture;
     b2Fixture *(b2Body::*create_fixture_2)(const b2Shape *, float32) = &b2Body::CreateFixture;
     b2Fixture *(b2Body::*get_fixture_list)() = &b2Body::GetFixtureList;
@@ -222,8 +212,6 @@ void wrap_body()
 
 void wrap_filter()
 {
-    using namespace boost::python;
-
     class_<b2Filter>("Filter")
         .def_readwrite("category_bits", &b2Filter::categoryBits)
         .def_readwrite("mask_bits", &b2Filter::maskBits)
@@ -233,8 +221,6 @@ void wrap_filter()
 
 void wrap_fixture_def()
 {
-    using namespace boost::python;
-
     class_<b2FixtureDef>("FixtureDef")
         .def_readwrite("shape", &b2FixtureDef::shape)
         .def_readwrite("user_data", &b2FixtureDef::userData)
@@ -248,8 +234,6 @@ void wrap_fixture_def()
 
 void wrap_fixture()
 {
-    using namespace boost::python;
-
     b2Shape *(b2Fixture::*get_shape)() = &b2Fixture::GetShape;
     b2Body *(b2Fixture::*get_body)() = &b2Fixture::GetBody;
     b2Fixture *(b2Fixture::*get_next)() = &b2Fixture::GetNext;
@@ -274,8 +258,6 @@ void wrap_fixture()
 
 void wrap_mass_data()
 {
-    using namespace boost::python;
-
     class_<b2MassData>("MassData")
         .def_readwrite("mass", &b2MassData::mass)
         .def_readwrite("center", &b2MassData::center)
@@ -285,8 +267,6 @@ void wrap_mass_data()
 
 void wrap_shape_type()
 {
-    using namespace boost::python;
-
     enum_<b2Shape::Type>("ShapeType")
         .value("UNKNOWN_SHAPE", b2Shape::e_unknown)
         .value("CIRCLE_SHAPE", b2Shape::e_circle)
@@ -299,8 +279,6 @@ void wrap_shape_type()
 
 void wrap_shape()
 {
-    using namespace boost::python;
-
     class_<b2Shape, boost::noncopyable>("Shape", no_init)
         .def("clone", pure_virtual(&b2Shape::Clone), return_value_policy<manage_new_object>())
         .add_property("type", &b2Shape::GetType)
@@ -309,28 +287,24 @@ void wrap_shape()
         .def("ray_cast", pure_virtual(&b2Shape::RayCast))
         .def("compute_aabb", pure_virtual(&b2Shape::ComputeAABB))
         .def("compute_mass", pure_virtual(&b2Shape::ComputeMass))
-        .def_readonly("radius", &b2Shape::m_radius)
+        .def_readwrite("radius", &b2Shape::m_radius)
     ;
 }
 
 void wrap_circle_shape()
 {
-    using namespace boost::python;
-
     class_<b2CircleShape, bases<b2Shape> >("CircleShape")
         .add_property("child_count", &b2CircleShape::GetChildCount)
         .def("get_support", &b2CircleShape::GetSupport)
         .def("get_support_vertex", &b2CircleShape::GetSupportVertex, return_value_policy<copy_const_reference>())
         .add_property("vertex_count", &b2CircleShape::GetVertexCount)
         .def("get_vertex", &b2CircleShape::GetVertex, return_value_policy<copy_const_reference>())
-        .def_readonly("position", &b2CircleShape::m_p)
+        .def_readwrite("position", &b2CircleShape::m_p)
     ;
 }
 
 void wrap_edge_shape()
 {
-    using namespace boost::python;
-
     class_<b2EdgeShape, bases<b2Shape> >("EdgeShape")
         .add_property("child_count", &b2EdgeShape::GetChildCount)
         .def_readwrite("vertex_1", &b2EdgeShape::m_vertex1)
@@ -338,21 +312,38 @@ void wrap_edge_shape()
     ;
 }
 
+list get_vertices(const b2PolygonShape *polygon_shape)
+{
+    list vertices;
+    int32 n = polygon_shape->GetVertexCount();
+    for (int32 i = 0; i != n; ++i) {
+        vertices.append(polygon_shape->GetVertex(i));
+    }
+    return vertices;
+}
+
+void set_vertices(b2PolygonShape *polygon_shape, list vertices)
+{
+    b2Vec2 arr[b2_maxPolygonVertices];
+    long n = len(vertices);
+    for (long i = 0; i != n; ++i) {
+        arr[i] = extract<const b2Vec2 &>(vertices[i]);
+    }
+    polygon_shape->Set(arr, n);
+}
+
 void wrap_polygon_shape()
 {
-    using namespace boost::python;
-
     class_<b2PolygonShape, bases<b2Shape> >("PolygonShape")
         .add_property("child_count", &b2PolygonShape::GetChildCount)
         .add_property("vertex_count", &b2PolygonShape::GetVertexCount)
         .def("get_vertex", &b2PolygonShape::GetVertex, return_value_policy<copy_const_reference>())
+        .add_property("vertices", &get_vertices, &set_vertices)
     ;
 }
 
 void wrap_loop_shape()
 {
-    using namespace boost::python;
-
     class_<b2LoopShape, bases<b2Shape> >("LoopShape")
         .add_property("child_count", &b2LoopShape::GetChildCount)
         .def("get_child_edge", &b2LoopShape::GetChildEdge)
