@@ -291,9 +291,18 @@ void wrap_shape()
     ;
 }
 
+b2CircleShape *construct_circle_shape(const b2Vec2 &position, float32 radius)
+{
+    b2CircleShape *circle_shape = new b2CircleShape;
+    circle_shape->m_p = position;
+    circle_shape->m_radius = radius;
+    return circle_shape;
+}
+
 void wrap_circle_shape()
 {
     class_<b2CircleShape, bases<b2Shape> >("CircleShape")
+        .def("__init__", make_constructor(construct_circle_shape))
         .add_property("child_count", &b2CircleShape::GetChildCount)
         .def("get_support", &b2CircleShape::GetSupport)
         .def("get_support_vertex", &b2CircleShape::GetSupportVertex, return_value_policy<copy_const_reference>())
@@ -322,7 +331,7 @@ list get_vertices(const b2PolygonShape *polygon_shape)
     return vertices;
 }
 
-void set_vertices(b2PolygonShape *polygon_shape, list vertices)
+void set_vertices(b2PolygonShape *polygon_shape, const list &vertices)
 {
     b2Vec2 arr[b2_maxPolygonVertices];
     long n = len(vertices);
@@ -350,8 +359,17 @@ void wrap_loop_shape()
     ;
 }
 
+void translate_assertion_failed(const pysics::assertion_failed &e)
+{
+    std::string what("assertion failed: ");
+    what += e.what();
+    PyErr_SetString(PyExc_AssertionError, what.c_str());
+}
+
 BOOST_PYTHON_MODULE(pysics)
 {
+    register_exception_translator<pysics::assertion_failed>(&translate_assertion_failed);
+
     wrap_vec_2();
     wrap_math();
     wrap_world();
