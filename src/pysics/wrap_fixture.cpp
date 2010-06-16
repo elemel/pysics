@@ -1,5 +1,6 @@
-#include <boost/python.hpp>
+#include "wrap_fixture.hpp"
 
+#include <boost/python.hpp>
 #include <Box2D/Dynamics/b2Fixture.h>
 
 using namespace boost::python;

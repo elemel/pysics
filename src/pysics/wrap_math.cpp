@@ -1,5 +1,6 @@
-#include <boost/python.hpp>
+#include "wrap_math.hpp"
 
+#include <boost/python.hpp>
 #include <Box2D/Common/b2Math.h>
 
 using namespace boost::python;

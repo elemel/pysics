@@ -1,5 +1,6 @@
-#include <boost/python.hpp>
+#include "wrap_body.hpp"
 
+#include <boost/python.hpp>
 #include <Box2D/Dynamics/b2Fixture.h>
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Dynamics/b2World.h>

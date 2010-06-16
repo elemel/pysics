@@ -1,3 +1,9 @@
+#include "wrap_body.hpp"
+#include "wrap_fixture.hpp"
+#include "wrap_math.hpp"
+#include "wrap_shape.hpp"
+#include "wrap_world.hpp"
+
 #include <boost/python.hpp>
 
 #include <Box2D/Common/b2Settings.h>
@@ -5,27 +11,6 @@
 using namespace boost::python;
 
 namespace pysics {
-    void wrap_vec_2();
-    void wrap_math();
-
-    void wrap_world();
-
-    void wrap_body_type();
-    void wrap_body_def();
-    void wrap_body();
-
-    void wrap_filter();
-    void wrap_fixture_def();
-    void wrap_fixture();
-
-    void wrap_mass_data();
-    void wrap_shape_type();
-    void wrap_shape();
-    void wrap_circle_shape();
-    void wrap_edge_shape();
-    void wrap_polygon_shape();
-    void wrap_loop_shape();
-
     void translate_assertion_failed(const pysics::assertion_failed &e)
     {
         std::string what("assertion failed: ");
