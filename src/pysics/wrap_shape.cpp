@@ -1,5 +1,6 @@
 #include "wrap_shape.hpp"
 
+#include <memory>
 #include <boost/python.hpp>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 #include <Box2D/Collision/Shapes/b2EdgeShape.h>
@@ -45,9 +46,9 @@ namespace pysics {
         ;
     }
 
-    b2CircleShape *construct_circle_shape(const b2Vec2 &position, float32 radius)
+    std::auto_ptr<b2CircleShape> construct_circle_shape(const b2Vec2 &position, float32 radius)
     {
-        b2CircleShape *circle_shape = new b2CircleShape;
+        std::auto_ptr<b2CircleShape> circle_shape(new b2CircleShape);
         circle_shape->m_p = position;
         circle_shape->m_radius = radius;
         return circle_shape;
@@ -95,9 +96,17 @@ namespace pysics {
         polygon_shape->Set(arr, n);
     }
 
+    std::auto_ptr<b2PolygonShape> construct_polygon_shape(const list &vertices)
+    {
+        std::auto_ptr<b2PolygonShape> polygon_shape(new b2PolygonShape);
+        set_vertices(polygon_shape.get(), vertices);
+        return polygon_shape;
+    }
+
     void wrap_polygon_shape()
     {
         class_<b2PolygonShape, bases<b2Shape> >("PolygonShape")
+            .def("__init__", make_constructor(construct_polygon_shape))
             .add_property("child_count", &b2PolygonShape::GetChildCount)
             .add_property("vertex_count", &b2PolygonShape::GetVertexCount)
             .def("get_vertex", &b2PolygonShape::GetVertex, return_value_policy<copy_const_reference>())
