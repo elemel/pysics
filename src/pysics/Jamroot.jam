@@ -14,7 +14,7 @@ use-project boost : ../ext/boost-python ;
 
 project : requirements <library>/boost/python//boost_python ;
 
-python-extension pysics : pysics.cpp wrap_math.cpp wrap_shape.cpp ../ext/box2d/Box2D/Box2D/libBox2D.a : <include>../ext/box2d/Box2D ;
+python-extension pysics : pysics.cpp wrap_body.cpp wrap_fixture.cpp wrap_math.cpp wrap_shape.cpp wrap_world.cpp ../ext/box2d/Box2D/Box2D/libBox2D.a : <include>../ext/box2d/Box2D ;
 
 local rule run-test ( test-name : sources + ) {
     import testing ;

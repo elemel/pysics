@@ -9,6 +9,15 @@
 
 using namespace boost::python;
 
+void wrap_mass_data()
+{
+    class_<b2MassData>("MassData")
+        .def_readwrite("mass", &b2MassData::mass)
+        .def_readwrite("center", &b2MassData::center)
+        .def_readwrite("inertia", &b2MassData::I)
+    ;
+}
+
 void wrap_shape_type()
 {
     enum_<b2Shape::Type>("ShapeType")
