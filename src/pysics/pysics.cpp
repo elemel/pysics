@@ -4,37 +4,41 @@
 
 using namespace boost::python;
 
-void wrap_vec_2();
-void wrap_math();
+namespace pysics {
+    void wrap_vec_2();
+    void wrap_math();
 
-void wrap_world();
+    void wrap_world();
 
-void wrap_body_type();
-void wrap_body_def();
-void wrap_body();
+    void wrap_body_type();
+    void wrap_body_def();
+    void wrap_body();
 
-void wrap_filter();
-void wrap_fixture_def();
-void wrap_fixture();
+    void wrap_filter();
+    void wrap_fixture_def();
+    void wrap_fixture();
 
-void wrap_mass_data();
-void wrap_shape_type();
-void wrap_shape();
-void wrap_circle_shape();
-void wrap_edge_shape();
-void wrap_polygon_shape();
-void wrap_loop_shape();
+    void wrap_mass_data();
+    void wrap_shape_type();
+    void wrap_shape();
+    void wrap_circle_shape();
+    void wrap_edge_shape();
+    void wrap_polygon_shape();
+    void wrap_loop_shape();
 
-void translate_assertion_failed(const pysics::assertion_failed &e)
-{
-    std::string what("assertion failed: ");
-    what += e.what();
-    PyErr_SetString(PyExc_AssertionError, what.c_str());
+    void translate_assertion_failed(const pysics::assertion_failed &e)
+    {
+        std::string what("assertion failed: ");
+        what += e.what();
+        PyErr_SetString(PyExc_AssertionError, what.c_str());
+    }
 }
 
 BOOST_PYTHON_MODULE(pysics)
 {
-    register_exception_translator<pysics::assertion_failed>(&translate_assertion_failed);
+    using namespace pysics;
+
+    register_exception_translator<assertion_failed>(&translate_assertion_failed);
 
     wrap_vec_2();
     wrap_math();
