@@ -31,7 +31,6 @@ BOOST_PYTHON_MODULE(pysics)
     wrap_body_type();
     wrap_body_def();
     wrap_body();
-    wrap_filter();
     wrap_fixture_def();
     wrap_fixture();
     wrap_mass_data();

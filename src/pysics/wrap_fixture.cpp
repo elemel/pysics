@@ -6,13 +6,72 @@
 using namespace boost::python;
 
 namespace pysics {
-    void wrap_filter()
-    {
-        class_<b2Filter>("Filter")
-            .def_readwrite("category_bits", &b2Filter::categoryBits)
-            .def_readwrite("mask_bits", &b2Filter::maskBits)
-            .def_readwrite("group_index", &b2Filter::groupIndex)
-        ;
+    namespace {
+        uint16 fixture_def_get_category_bits(const b2FixtureDef *fixture_def)
+        {
+            return fixture_def->filter.categoryBits;
+        }
+
+        void fixture_def_set_category_bits(b2FixtureDef *fixture_def, uint16 category_bits)
+        {
+            fixture_def->filter.categoryBits = category_bits;
+        }
+
+        uint16 fixture_def_get_mask_bits(const b2FixtureDef *fixture_def)
+        {
+            return fixture_def->filter.maskBits;
+        }
+
+        void fixture_def_set_mask_bits(b2FixtureDef *fixture_def, uint16 mask_bits)
+        {
+            fixture_def->filter.maskBits = mask_bits;
+        }
+
+        uint16 fixture_def_get_group_index(const b2FixtureDef *fixture_def)
+        {
+            return fixture_def->filter.groupIndex;
+        }
+
+        void fixture_def_set_group_index(b2FixtureDef *fixture_def, uint16 group_index)
+        {
+            fixture_def->filter.groupIndex = group_index;
+        }
+
+        uint16 fixture_get_category_bits(const b2Fixture *fixture)
+        {
+            return fixture->GetFilterData().categoryBits;
+        }
+
+        void fixture_set_category_bits(b2Fixture *fixture, uint16 category_bits)
+        {
+            b2Filter filter = fixture->GetFilterData();
+            filter.categoryBits = category_bits;
+            fixture->SetFilterData(filter);
+        }
+
+        uint16 fixture_get_mask_bits(const b2Fixture *fixture)
+        {
+            return fixture->GetFilterData().maskBits;
+        }
+
+        void fixture_set_mask_bits(b2Fixture *fixture, uint16 mask_bits)
+        {
+            b2Filter filter = fixture->GetFilterData();
+            filter.maskBits = mask_bits;
+            fixture->SetFilterData(filter);
+        }
+
+        uint16 fixture_get_group_index(const b2Fixture *fixture)
+        {
+            return fixture->GetFilterData().groupIndex;
+        }
+
+        void fixture_set_group_index(b2Fixture *fixture, uint16 group_index)
+        {
+            b2Filter filter = fixture->GetFilterData();
+            filter.groupIndex = group_index;
+            fixture->SetFilterData(filter);
+        }
     }
 
     void wrap_fixture_def()
@@ -24,7 +83,9 @@ namespace pysics {
             .def_readwrite("restitution", &b2FixtureDef::restitution)
             .def_readwrite("density", &b2FixtureDef::density)
             .def_readwrite("sensor", &b2FixtureDef::isSensor)
-            .def_readwrite("filter", &b2FixtureDef::filter)
+            .add_property("category_bits", &fixture_def_get_category_bits, &fixture_def_set_category_bits)
+            .add_property("mask_bits", &fixture_def_get_mask_bits, &fixture_def_set_mask_bits)
+            .add_property("group_index", &fixture_def_get_group_index, &fixture_def_set_group_index)
         ;
     }
 
@@ -38,7 +99,9 @@ namespace pysics {
             .add_property("type", &b2Fixture::GetType)
             .add_property("shape", make_function(get_shape, return_internal_reference<>()))
             .add_property("sensor", &b2Fixture::IsSensor, &b2Fixture::SetSensor)
-            .add_property("filter_data", make_function(&b2Fixture::GetFilterData, return_value_policy<copy_const_reference>()), &b2Fixture::SetFilterData)
+            .add_property("category_bits", &fixture_get_category_bits, &fixture_set_category_bits)
+            .add_property("mask_bits", &fixture_get_mask_bits, &fixture_set_mask_bits)
+            .add_property("group_index", &fixture_get_group_index, &fixture_set_group_index)
             .add_property("body", make_function(get_body, return_internal_reference<>()))
             .add_property("next", make_function(get_next, return_internal_reference<>()))
             .add_property("user_data", &b2Fixture::GetUserData, &b2Fixture::SetUserData)
