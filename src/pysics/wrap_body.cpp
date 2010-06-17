@@ -20,10 +20,32 @@ namespace pysics {
         ;
     }
 
+    b2Fixture *create_fixture(b2Body *body,
+                              const b2Shape *shape,
+                              b2UserData user_data,
+                              float32 friction,
+                              float32 restitution,
+                              float32 density,
+                              bool sensor,
+                              uint16 category_bits,
+                              uint16 mask_bits,
+                              uint16 group_index)
+    {
+        b2FixtureDef fixture_def;
+        fixture_def.shape = shape;
+        fixture_def.userData = user_data;
+        fixture_def.friction = friction;
+        fixture_def.restitution = restitution;
+        fixture_def.density = density;
+        fixture_def.isSensor = sensor;
+        fixture_def.filter.categoryBits = category_bits;
+        fixture_def.filter.maskBits = mask_bits;
+        fixture_def.filter.groupIndex = group_index;
+        return body->CreateFixture(&fixture_def);
+    }
+
     void wrap_body()
     {
-        b2Fixture *(b2Body::*create_fixture_1)(const b2FixtureDef *) = &b2Body::CreateFixture;
-        b2Fixture *(b2Body::*create_fixture_2)(const b2Shape *, float32) = &b2Body::CreateFixture;
         b2Fixture *(b2Body::*get_fixture_list)() = &b2Body::GetFixtureList;
         b2JointEdge *(b2Body::*get_joint_list)() = &b2Body::GetJointList;
         b2ContactEdge *(b2Body::*get_contact_list)() = &b2Body::GetContactList;
@@ -31,8 +53,17 @@ namespace pysics {
         b2World *(b2Body::*get_world)() = &b2Body::GetWorld;
 
         class_<b2Body, boost::noncopyable>("Body", no_init)
-            .def("create_fixture", create_fixture_1, return_internal_reference<>())
-            .def("create_fixture", create_fixture_2, return_internal_reference<>())
+            .def("create_fixture", &create_fixture, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("shape"),
+                  arg("user_data")=object(),
+                  arg("friction")=0.2f,
+                  arg("restitution")=0.0f,
+                  arg("density")=0.0f,
+                  arg("sensor")=false,
+                  arg("category_bits")=0x0001,
+                  arg("mask_bits")=0xffff,
+                  arg("group_index")=0))
             .def("destroy_fixture", &b2Body::DestroyFixture)
             .add_property("transform", make_function(&b2Body::GetTransform, return_value_policy<copy_const_reference>()), &b2Body::SetTransform)
             .add_property("position", make_function(&b2Body::GetPosition, return_value_policy<copy_const_reference>()))
