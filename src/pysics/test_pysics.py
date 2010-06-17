@@ -34,6 +34,10 @@ def test_body_can_have_none_as_user_data():
         body.user_data = None
         assert body.user_data is None
 
+def test_default_initialized_vec_2_is_zero():
+    x, y = Vec2()
+    assert not x and not y
+
 def test_vec_2_has_length_2():
     assert len(Vec2(0, 0)) == 2
 

@@ -6,6 +6,16 @@
 using namespace boost::python;
 
 namespace pysics {
+    std::auto_ptr<b2Vec2> create_vec_2()
+    {
+        return std::auto_ptr<b2Vec2>(new b2Vec2(0.0f, 0.0f));
+    }
+
+    int vec_2_len(b2Vec2 &v)
+    {
+        return 2;
+    }
+
     float32 vec_2_getitem(const b2Vec2 &v, int32 index)
     {
         if (index >= 0 && index < 2) {
@@ -24,21 +34,6 @@ namespace pysics {
         }
     }
 
-    int vec_2_len(b2Vec2 &v)
-    {
-        return 2;
-    }
-
-    float32 *vec_2_begin(b2Vec2 &v)
-    {
-        return &v.x;
-    }
-
-    float32 *vec_2_end(b2Vec2 &v)
-    {
-        return &v.x + 2;
-    }
-
     std::string vec_2_repr(const b2Vec2 &v)
     {
         std::ostringstream out;
@@ -49,36 +44,43 @@ namespace pysics {
     void wrap_vec_2()
     {
         class_<b2Vec2>("Vec2", init<float32, float32>())
-            .def("set_zero", &b2Vec2::SetZero)
-            .def("set", &b2Vec2::Set)
-            .def(-self)
-            .def("__getitem__", &vec_2_getitem)
-            .def("__setitem__", &vec_2_setitem)
+            .def("__init__", make_constructor(&create_vec_2))
+
             .def(self += self)
             .def(self -= self)
             .def(self *= float32())
-            .add_property("length", &b2Vec2::Length)
-            .add_property("length_squared", &b2Vec2::LengthSquared)
-            .def("normalize", &b2Vec2::Normalize)
-            .add_property("valid", &b2Vec2::IsValid)
-            .def_readwrite("x", &b2Vec2::x)
-            .def_readwrite("y", &b2Vec2::y)
-            .def("__len__", &vec_2_len)
-            .def("__iter__", range(&vec_2_begin, &vec_2_end))
-            .def("__repr__", &vec_2_repr)
+
+            .def(-self)
             .def(self + self)
             .def(self - self)
             .def(float32() * self)
             .def(self == self)
+
+            .def("__len__", &vec_2_len)
+            .def("__getitem__", &vec_2_getitem)
+            .def("__setitem__", &vec_2_setitem)
+
+            .def("__abs__", &b2Vec2::Length)
+            .def("__repr__", &vec_2_repr)
+
+            .def("set_zero", &b2Vec2::SetZero)
+            .def("set", &b2Vec2::Set)
+            .def("normalize", &b2Vec2::Normalize)
+
+            .def_readwrite("x", &b2Vec2::x)
+            .def_readwrite("y", &b2Vec2::y)
+            .add_property("length", &b2Vec2::Length)
+            .add_property("length_squared", &b2Vec2::LengthSquared)
+            .add_property("valid", &b2Vec2::IsValid)
         ;
     }
 
     void wrap_math()
     {
         float32 (*dot)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
-        float32 (*cross_1)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
-        float32 (*cross_2)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
-        float32 (*cross_3)(const b2Vec2 &, const b2Vec2 &) = &b2Dot;
+        float32 (*cross_1)(const b2Vec2 &, const b2Vec2 &) = &b2Cross;
+        b2Vec2 (*cross_2)(const b2Vec2 &, float32) = &b2Cross;
+        b2Vec2 (*cross_3)(float32, const b2Vec2 &) = &b2Cross;
 
         def("dot", dot);
         def("cross", cross_1);
