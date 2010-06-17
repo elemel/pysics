@@ -1,6 +1,5 @@
 #include "wrap_shape.hpp"
 
-#include <memory>
 #include <boost/python.hpp>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 #include <Box2D/Collision/Shapes/b2EdgeShape.h>
