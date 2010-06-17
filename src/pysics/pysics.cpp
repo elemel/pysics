@@ -27,9 +27,8 @@ BOOST_PYTHON_MODULE(pysics)
 
     wrap_vec_2();
     wrap_math();
-    wrap_world();
     wrap_body_type();
-    wrap_body_def();
+    wrap_world();
     wrap_body();
     wrap_fixture_def();
     wrap_fixture();

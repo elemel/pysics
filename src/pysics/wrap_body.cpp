@@ -20,26 +20,6 @@ namespace pysics {
         ;
     }
 
-    void wrap_body_def()
-    {
-        class_<b2BodyDef>("BodyDef")
-            .def_readwrite("user_data", &b2BodyDef::userData)
-            .def_readwrite("position", &b2BodyDef::position)
-            .def_readwrite("angle", &b2BodyDef::angle)
-            .def_readwrite("linear_velocity", &b2BodyDef::linearVelocity)
-            .def_readwrite("angular_velocity", &b2BodyDef::angularVelocity)
-            .def_readwrite("linear_damping", &b2BodyDef::linearDamping)
-            .def_readwrite("angular_damping", &b2BodyDef::angularDamping)
-            .def_readwrite("allow_sleep", &b2BodyDef::allowSleep)
-            .def_readwrite("awake", &b2BodyDef::awake)
-            .def_readwrite("fixed_rotation", &b2BodyDef::fixedRotation)
-            .def_readwrite("bullet", &b2BodyDef::bullet)
-            .def_readwrite("type", &b2BodyDef::type)
-            .def_readwrite("active", &b2BodyDef::active)
-            .def_readwrite("inertia_scale", &b2BodyDef::inertiaScale)
-        ;
-    }
-
     void wrap_body()
     {
         b2Fixture *(b2Body::*create_fixture_1)(const b2FixtureDef *) = &b2Body::CreateFixture;
