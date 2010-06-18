@@ -3,7 +3,6 @@
 
 namespace pysics {
     void wrap_body_type();
-    void wrap_body_def();
     void wrap_body();
 }
 
