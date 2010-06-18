@@ -2,6 +2,9 @@
 
 #include <boost/python.hpp>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
+#include <Box2D/Collision/Shapes/b2EdgeShape.h>
+#include <Box2D/Collision/Shapes/b2LoopShape.h>
+#include <Box2D/Collision/Shapes/b2PolygonShape.h>
 #include <Box2D/Dynamics/b2Fixture.h>
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Dynamics/b2World.h>
@@ -46,7 +49,7 @@ namespace pysics {
     }
 
     b2Fixture *create_circle_fixture(b2Body *body,
-                                     const b2Vec2 &local_position,
+                                     const b2Vec2 &position,
                                      float32 radius,
                                      b2UserData user_data,
                                      float32 friction,
@@ -58,11 +61,112 @@ namespace pysics {
                                      uint16 group_index)
     {
         b2CircleShape circle_shape;
-        circle_shape.m_p = local_position;
+        circle_shape.m_p = position;
         circle_shape.m_radius = radius;
 
         b2FixtureDef fixture_def;
         fixture_def.shape = &circle_shape;
+        fixture_def.userData = user_data;
+        fixture_def.friction = friction;
+        fixture_def.restitution = restitution;
+        fixture_def.density = density;
+        fixture_def.isSensor = sensor;
+        fixture_def.filter.categoryBits = category_bits;
+        fixture_def.filter.maskBits = mask_bits;
+        fixture_def.filter.groupIndex = group_index;
+
+        return body->CreateFixture(&fixture_def);
+    }
+
+    b2Fixture *create_edge_fixture(b2Body *body,
+                                   const b2Vec2 &vertex_1,
+                                   const b2Vec2 &vertex_2,
+                                   b2UserData user_data,
+                                   float32 friction,
+                                   float32 restitution,
+                                   float32 density,
+                                   bool sensor,
+                                   uint16 category_bits,
+                                   uint16 mask_bits,
+                                   uint16 group_index)
+    {
+        b2EdgeShape edge_shape;
+        edge_shape.m_vertex1 = vertex_1;
+        edge_shape.m_vertex2 = vertex_2;
+
+        b2FixtureDef fixture_def;
+        fixture_def.shape = &edge_shape;
+        fixture_def.userData = user_data;
+        fixture_def.friction = friction;
+        fixture_def.restitution = restitution;
+        fixture_def.density = density;
+        fixture_def.isSensor = sensor;
+        fixture_def.filter.categoryBits = category_bits;
+        fixture_def.filter.maskBits = mask_bits;
+        fixture_def.filter.groupIndex = group_index;
+
+        return body->CreateFixture(&fixture_def);
+    }
+
+    namespace {
+        void set_vertices(b2PolygonShape *polygon_shape, const list &vertices)
+        {
+            b2Vec2 arr[b2_maxPolygonVertices];
+            long n = len(vertices);
+            for (long i = 0; i != n; ++i) {
+                arr[i] = extract<const b2Vec2 &>(vertices[i]);
+            }
+            polygon_shape->Set(arr, n);
+        }
+    }
+
+    b2Fixture *create_polygon_fixture(b2Body *body,
+                                      const list &vertices,
+                                      b2UserData user_data,
+                                      float32 friction,
+                                      float32 restitution,
+                                      float32 density,
+                                      bool sensor,
+                                      uint16 category_bits,
+                                      uint16 mask_bits,
+                                      uint16 group_index)
+    {
+        b2PolygonShape polygon_shape;
+        if (len(vertices)) {
+            set_vertices(&polygon_shape, vertices);
+        } else {
+            polygon_shape.SetAsBox(1.0f, 1.0f);
+        }
+
+        b2FixtureDef fixture_def;
+        fixture_def.shape = &polygon_shape;
+        fixture_def.userData = user_data;
+        fixture_def.friction = friction;
+        fixture_def.restitution = restitution;
+        fixture_def.density = density;
+        fixture_def.isSensor = sensor;
+        fixture_def.filter.categoryBits = category_bits;
+        fixture_def.filter.maskBits = mask_bits;
+        fixture_def.filter.groupIndex = group_index;
+
+        return body->CreateFixture(&fixture_def);
+    }
+
+    b2Fixture *create_loop_fixture(b2Body *body,
+                                   const object &vertices,
+                                   b2UserData user_data,
+                                   float32 friction,
+                                   float32 restitution,
+                                   float32 density,
+                                   bool sensor,
+                                   uint16 category_bits,
+                                   uint16 mask_bits,
+                                   uint16 group_index)
+    {
+        b2LoopShape loop_shape;
+
+        b2FixtureDef fixture_def;
+        fixture_def.shape = &loop_shape;
         fixture_def.userData = user_data;
         fixture_def.friction = friction;
         fixture_def.restitution = restitution;
@@ -90,19 +194,53 @@ namespace pysics {
                   arg("user_data")=object(),
                   arg("friction")=0.2f,
                   arg("restitution")=0.0f,
-                  arg("density")=0.0f,
+                  arg("density")=1.0f,
                   arg("sensor")=false,
                   arg("category_bits")=0x0001,
                   arg("mask_bits")=0xffff,
                   arg("group_index")=0))
             .def("create_circle_fixture", &create_circle_fixture, return_internal_reference<>(),
                  (arg("self"),
-                  arg("local_position")=b2Vec2(0.0f, 0.0f),
+                  arg("position")=b2Vec2(0.0f, 0.0f),
                   arg("radius")=1.0f,
                   arg("user_data")=object(),
                   arg("friction")=0.2f,
                   arg("restitution")=0.0f,
-                  arg("density")=0.0f,
+                  arg("density")=1.0f,
+                  arg("sensor")=false,
+                  arg("category_bits")=0x0001,
+                  arg("mask_bits")=0xffff,
+                  arg("group_index")=0))
+            .def("create_edge_fixture", &create_edge_fixture, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("vertex_1")=b2Vec2(0.0f, 0.0f),
+                  arg("vertex_2")=b2Vec2(0.0f, 0.0f),
+                  arg("user_data")=object(),
+                  arg("friction")=0.2f,
+                  arg("restitution")=0.0f,
+                  arg("density")=1.0f,
+                  arg("sensor")=false,
+                  arg("category_bits")=0x0001,
+                  arg("mask_bits")=0xffff,
+                  arg("group_index")=0))
+            .def("create_polygon_fixture", &create_polygon_fixture, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("vertices")=list(),
+                  arg("user_data")=object(),
+                  arg("friction")=0.2f,
+                  arg("restitution")=0.0f,
+                  arg("density")=1.0f,
+                  arg("sensor")=false,
+                  arg("category_bits")=0x0001,
+                  arg("mask_bits")=0xffff,
+                  arg("group_index")=0))
+            .def("create_loop_fixture", &create_loop_fixture, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("vertices"),
+                  arg("user_data")=object(),
+                  arg("friction")=0.2f,
+                  arg("restitution")=0.0f,
+                  arg("density")=1.0f,
                   arg("sensor")=false,
                   arg("category_bits")=0x0001,
                   arg("mask_bits")=0xffff,

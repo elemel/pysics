@@ -21,6 +21,27 @@ def manage_circle_fixture():
         yield circle_fixture
         body.destroy_fixture(circle_fixture)
 
+@contextmanager
+def manage_edge_fixture():
+    with manage_body() as body:
+        edge_fixture = body.create_edge_fixture()
+        yield edge_fixture
+        body.destroy_fixture(edge_fixture)
+
+@contextmanager
+def manage_polygon_fixture():
+    with manage_body() as body:
+        polygon_fixture = body.create_polygon_fixture()
+        yield polygon_fixture
+        body.destroy_fixture(polygon_fixture)
+
+@contextmanager
+def manage_loop_fixture():
+    with manage_body() as body:
+        loop_fixture = body.create_loop_fixture(None)
+        yield loop_fixture
+        body.destroy_fixture(loop_fixture)
+
 def test_body_types_are_distinct():
     body_types = [STATIC_BODY, KINEMATIC_BODY, DYNAMIC_BODY]
     assert len(body_types) == len(set(body_types))
@@ -50,6 +71,12 @@ def test_vec_2_has_length_2():
 
 def test_exercise():
     with manage_circle_fixture() as fixture:
+        pass
+    with manage_edge_fixture() as fixture:
+        pass
+    with manage_polygon_fixture() as fixture:
+        pass
+    with manage_loop_fixture() as fixture:
         pass
 
 def test_vec_2_unpacks_with_length_2():
