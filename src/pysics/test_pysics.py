@@ -14,6 +14,13 @@ def manage_body():
         yield body
         world.destroy_body(body)
 
+@contextmanager
+def manage_circle_fixture():
+    with manage_body() as body:
+        circle_fixture = body.create_circle_fixture()
+        yield circle_fixture
+        body.destroy_fixture(circle_fixture)
+
 def test_body_types_are_distinct():
     body_types = [STATIC_BODY, KINEMATIC_BODY, DYNAMIC_BODY]
     assert len(body_types) == len(set(body_types))
@@ -40,6 +47,10 @@ def test_default_initialized_vec_2_is_zero():
 
 def test_vec_2_has_length_2():
     assert len(Vec2(0, 0)) == 2
+
+def test_exercise():
+    with manage_circle_fixture() as fixture:
+        pass
 
 def test_vec_2_unpacks_with_length_2():
     x, y = Vec2(0, 0)

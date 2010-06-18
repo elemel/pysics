@@ -1,6 +1,7 @@
 #include "wrap_body.hpp"
 
 #include <boost/python.hpp>
+#include <Box2D/Collision/Shapes/b2CircleShape.h>
 #include <Box2D/Dynamics/b2Fixture.h>
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Dynamics/b2World.h>
@@ -44,6 +45,36 @@ namespace pysics {
         return body->CreateFixture(&fixture_def);
     }
 
+    b2Fixture *create_circle_fixture(b2Body *body,
+                                     const b2Vec2 &local_position,
+                                     float32 radius,
+                                     b2UserData user_data,
+                                     float32 friction,
+                                     float32 restitution,
+                                     float32 density,
+                                     bool sensor,
+                                     uint16 category_bits,
+                                     uint16 mask_bits,
+                                     uint16 group_index)
+    {
+        b2CircleShape circle_shape;
+        circle_shape.m_p = local_position;
+        circle_shape.m_radius = radius;
+
+        b2FixtureDef fixture_def;
+        fixture_def.shape = &circle_shape;
+        fixture_def.userData = user_data;
+        fixture_def.friction = friction;
+        fixture_def.restitution = restitution;
+        fixture_def.density = density;
+        fixture_def.isSensor = sensor;
+        fixture_def.filter.categoryBits = category_bits;
+        fixture_def.filter.maskBits = mask_bits;
+        fixture_def.filter.groupIndex = group_index;
+
+        return body->CreateFixture(&fixture_def);
+    }
+
     void wrap_body()
     {
         b2Fixture *(b2Body::*get_fixture_list)() = &b2Body::GetFixtureList;
@@ -56,6 +87,18 @@ namespace pysics {
             .def("create_fixture", &create_fixture, return_internal_reference<>(),
                  (arg("self"),
                   arg("shape"),
+                  arg("user_data")=object(),
+                  arg("friction")=0.2f,
+                  arg("restitution")=0.0f,
+                  arg("density")=0.0f,
+                  arg("sensor")=false,
+                  arg("category_bits")=0x0001,
+                  arg("mask_bits")=0xffff,
+                  arg("group_index")=0))
+            .def("create_circle_fixture", &create_circle_fixture, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("local_position")=b2Vec2(0.0f, 0.0f),
+                  arg("radius")=1.0f,
                   arg("user_data")=object(),
                   arg("friction")=0.2f,
                   arg("restitution")=0.0f,
