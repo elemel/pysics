@@ -14,6 +14,7 @@ void test_default_constructor()
     assert(int_slice.empty());
 }
 
+#if 0
 void test_input_range_constructor()
 {
     pysics::shared_slice<int> int_slice(int_array,
@@ -36,11 +37,12 @@ void test_random_access_range_constructor()
     assert(std::equal(int_array, int_array + int_array_size,
                       int_slice.begin()));
 }
+#endif
 
 int main()
 {
     test_default_constructor();
-    test_input_range_constructor();
-    test_random_access_range_constructor();
+    // test_input_range_constructor();
+    // test_random_access_range_constructor();
     return 0;
 }

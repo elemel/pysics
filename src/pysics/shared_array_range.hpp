@@ -1,5 +1,5 @@
-#ifndef PYSICS_SHARED_SLICE_HPP
-#define PYSICS_SHARED_SLICE_HPP
+#ifndef PYSICS_SHARED_ARRAY_RANGE_HPP
+#define PYSICS_SHARED_ARRAY_RANGE_HPP
 
 #include <cassert>
 #include <stdexcept>
@@ -7,19 +7,19 @@
 
 namespace pysics {
     template <typename T>
-    class shared_slice {
+    class shared_array_range {
     private:
         boost::shared_array<T> arr_;
         T *first_;
         T *last_;
 
     public:
-        shared_slice()
+        shared_array_range()
         : first_(), last_()
         { }
 
-        shared_slice(const shared_slice &other, std::size_t first,
-                     std::size_t last)
+        shared_array_range(const shared_array_range &other, std::size_t first,
+                           std::size_t last)
         : arr_(other.arr_),
           first_(other.first_ + first),
           last_(other.first_ + last)
@@ -27,25 +27,18 @@ namespace pysics {
             assert(first_ <= last_);
         }
 
-        template <typename InputIterator>
-        shared_slice(InputIterator first, InputIterator last,
-                     std::size_t size)
-        : arr_(size ? new T[size] : 0),
-          first_(arr_.get()),
-          last_(arr_.get() + size)
-        {
-            std::copy(first, last, arr_.get());
-        }
+        shared_array_range(boost::shared_array<T> arr, std::size_t last)
+        : arr_(arr),
+          first_(arr.get()),
+          last_(arr.get() + last)
+        { }
 
-        template <typename RandomAccessIterator>
-        shared_slice(RandomAccessIterator first, RandomAccessIterator last)
-        : arr_(first != last ? new T[last - first] : 0),
-          first_(arr_.get()),
-          last_(arr_.get() + (last - first))
-        {
-            assert(first_ <= last_);
-            std::copy(first, last, arr_.get());
-        }
+        shared_array_range(boost::shared_array<T> arr, std::size_t first,
+                           std::size_t last)
+        : arr_(arr),
+          first_(arr.get() + first),
+          last_(arr.get() + last)
+        { }
 
         T& operator[](std::size_t index) const
         {
@@ -56,7 +49,7 @@ namespace pysics {
         T& at(std::size_t index) const
         {
             if (index >= size()) {
-                throw std::out_of_range();
+                throw std::out_of_range("index out of shared array range");
             }
             return first_[index];
         }

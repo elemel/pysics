@@ -2,6 +2,7 @@
 #include "wrap_fixture.hpp"
 #include "wrap_math.hpp"
 #include "wrap_shape.hpp"
+#include "wrap_vertex_array.hpp"
 #include "wrap_world.hpp"
 
 #include <boost/python.hpp>
@@ -27,6 +28,7 @@ BOOST_PYTHON_MODULE(pysics)
 
     wrap_vec_2();
     wrap_math();
+    wrap_vertex_array();
     wrap_body_type();
     wrap_world();
     wrap_body();
