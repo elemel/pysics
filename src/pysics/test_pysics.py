@@ -77,9 +77,7 @@ def test_exercise():
     with manage_polygon_fixture() as fixture:
         pass
     with manage_loop_fixture() as fixture:
-        vertex_array = VertexArray([Vec2(1, 2), Vec2(3, 4), Vec2(5, 6)])
-        fixture.shape.vertices = vertex_array
-        fixture.shape.vertices = VertexArray()
+        pass
 
 def test_vec_2_unpacks_with_length_2():
     x, y = Vec2(0, 0)
