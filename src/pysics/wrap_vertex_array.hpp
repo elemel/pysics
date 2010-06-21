@@ -6,7 +6,7 @@
 #include <Box2D/Common/b2Math.h>
 
 namespace pysics {
-    typedef shared_array_range<b2Vec2> vertex_array;
+    typedef shared_array_range<b2Vec2> VertexArray;
 
     void wrap_vertex_array();
 }

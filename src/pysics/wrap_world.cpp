@@ -45,7 +45,7 @@ namespace pysics {
 
     void wrap_world()
     {
-        class_<b2World>("World", init<const b2Vec2&, bool>())
+        class_<b2World>("World", init<b2Vec2, bool>())
             .def("set_destruction_listener", &b2World::SetDestructionListener)
             .def("set_contact_filter", &b2World::SetContactFilter)
             .def("set_contact_listener", &b2World::SetContactListener)

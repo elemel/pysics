@@ -1,6 +1,5 @@
 #include "wrap_body.hpp"
 #include "wrap_fixture.hpp"
-#include "wrap_math.hpp"
 #include "wrap_shape.hpp"
 #include "wrap_vertex_array.hpp"
 #include "wrap_world.hpp"
@@ -18,6 +17,36 @@ namespace pysics {
         what += e.what();
         PyErr_SetString(PyExc_AssertionError, what.c_str());
     }
+
+    struct Vec2ToTuple {
+        static PyObject *convert(b2Vec2 v)
+        {
+            return incref(make_tuple(v.x, v.y).ptr());
+        }
+    };
+
+    struct Vec2FromTuple {
+        Vec2FromTuple()
+        {
+            converter::registry::push_back(&convertible, &construct,
+                                           type_id<b2Vec2>());
+        }
+
+        static void *convertible(PyObject *obj_ptr)
+        {
+            return PyTuple_Check(obj_ptr) && PyTuple_Size(obj_ptr) == 2 ? obj_ptr : 0;
+        }
+
+        static void construct(PyObject *obj_ptr,
+                              converter::rvalue_from_python_stage1_data *data)
+        {
+            double x = PyFloat_AsDouble(PyTuple_GetItem(obj_ptr, 0));
+            double y = PyFloat_AsDouble(PyTuple_GetItem(obj_ptr, 1));
+            void *storage = ((converter::rvalue_from_python_storage<b2Vec2> *) data)->storage.bytes;
+            new (storage) b2Vec2(x, y);
+            data->convertible = storage;
+        }
+    };
 }
 
 BOOST_PYTHON_MODULE(pysics)
@@ -26,8 +55,9 @@ BOOST_PYTHON_MODULE(pysics)
 
     register_exception_translator<assertion_failed>(&translate_assertion_failed);
 
-    wrap_vec_2();
-    wrap_math();
+    to_python_converter<b2Vec2, Vec2ToTuple>();
+    Vec2FromTuple();
+
     wrap_vertex_array();
     wrap_body_type();
     wrap_world();

@@ -25,7 +25,7 @@ namespace pysics {
     }
 
     b2Fixture *create_fixture(b2Body *body,
-                              const b2Shape *shape,
+                              b2Shape *shape,
                               b2UserData user_data,
                               float32 friction,
                               float32 restitution,
@@ -49,7 +49,7 @@ namespace pysics {
     }
 
     b2Fixture *create_circle_fixture(b2Body *body,
-                                     const b2Vec2 &position,
+                                     b2Vec2 position,
                                      float32 radius,
                                      b2UserData user_data,
                                      float32 friction,
@@ -79,8 +79,8 @@ namespace pysics {
     }
 
     b2Fixture *create_edge_fixture(b2Body *body,
-                                   const b2Vec2 &vertex_1,
-                                   const b2Vec2 &vertex_2,
+                                   b2Vec2 vertex_1,
+                                   b2Vec2 vertex_2,
                                    b2UserData user_data,
                                    float32 friction,
                                    float32 restitution,
@@ -109,19 +109,19 @@ namespace pysics {
     }
 
     namespace {
-        void set_vertices(b2PolygonShape *polygon_shape, const list &vertices)
+        void set_vertices(b2PolygonShape *polygon_shape, list vertices)
         {
             b2Vec2 arr[b2_maxPolygonVertices];
             long n = len(vertices);
             for (long i = 0; i != n; ++i) {
-                arr[i] = extract<const b2Vec2 &>(vertices[i]);
+                arr[i] = extract<b2Vec2>(vertices[i]);
             }
             polygon_shape->Set(arr, n);
         }
     }
 
     b2Fixture *create_polygon_fixture(b2Body *body,
-                                      const list &vertices,
+                                      list vertices,
                                       b2UserData user_data,
                                       float32 friction,
                                       float32 restitution,
@@ -153,7 +153,7 @@ namespace pysics {
     }
 
     b2Fixture *create_loop_fixture(b2Body *body,
-                                   const object &vertices,
+                                   object vertices,
                                    b2UserData user_data,
                                    float32 friction,
                                    float32 restitution,

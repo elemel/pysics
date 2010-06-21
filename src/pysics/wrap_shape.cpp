@@ -47,7 +47,7 @@ namespace pysics {
         ;
     }
 
-    std::auto_ptr<b2CircleShape> construct_circle_shape(b2Vec2 &position, float32 radius)
+    std::auto_ptr<b2CircleShape> construct_circle_shape(b2Vec2 position, float32 radius)
     {
         std::auto_ptr<b2CircleShape> circle_shape(new b2CircleShape);
         circle_shape->m_p = position;
@@ -77,30 +77,30 @@ namespace pysics {
         ;
     }
 
-    list get_vertices(b2PolygonShape &polygon_shape)
+    list get_vertices(b2PolygonShape *polygon_shape)
     {
         list vertices;
-        int32 n = polygon_shape.GetVertexCount();
+        int32 n = polygon_shape->GetVertexCount();
         for (int32 i = 0; i != n; ++i) {
-            vertices.append(polygon_shape.GetVertex(i));
+            vertices.append(polygon_shape->GetVertex(i));
         }
         return vertices;
     }
 
-    void set_vertices(b2PolygonShape &polygon_shape, list &vertices)
+    void set_vertices(b2PolygonShape *polygon_shape, list vertices)
     {
         b2Vec2 arr[b2_maxPolygonVertices];
         long n = len(vertices);
         for (long i = 0; i != n; ++i) {
             arr[i] = extract<b2Vec2 &>(vertices[i]);
         }
-        polygon_shape.Set(arr, n);
+        polygon_shape->Set(arr, n);
     }
 
-    std::auto_ptr<b2PolygonShape> construct_polygon_shape(list &vertices)
+    std::auto_ptr<b2PolygonShape> construct_polygon_shape(list vertices)
     {
         std::auto_ptr<b2PolygonShape> polygon_shape(new b2PolygonShape);
-        set_vertices(*polygon_shape, vertices);
+        set_vertices(polygon_shape.get(), vertices);
         return polygon_shape;
     }
 
@@ -115,23 +115,23 @@ namespace pysics {
         ;
     }
 
-    list loop_shape_get_vertices(b2LoopShape &loop_shape)
+    list loop_shape_get_vertices(b2LoopShape *loop_shape)
     {
         list vertices;
-        for (int32 i = 0; i != loop_shape.m_count; ++i) {
-            vertices.append(loop_shape.m_vertices[i]);
+        for (int32 i = 0; i != loop_shape->m_count; ++i) {
+            vertices.append(loop_shape->m_vertices[i]);
         }
         return vertices;
     }
 
-    void loop_shape_set_vertices(b2LoopShape &loop_shape, vertex_array &vertices)
+    void loop_shape_set_vertices(b2LoopShape *loop_shape, VertexArray *vertices)
     {
-        if (vertices.empty()) {
-            loop_shape.m_vertices = 0;
-            loop_shape.m_count = 0;            
+        if (vertices->empty()) {
+            loop_shape->m_vertices = 0;
+            loop_shape->m_count = 0;
         } else {
-            loop_shape.m_vertices = &vertices[0];
-            loop_shape.m_count = vertices.size();
+            loop_shape->m_vertices = &(*vertices)[0];
+            loop_shape->m_count = vertices->size();
         }
     }
 
