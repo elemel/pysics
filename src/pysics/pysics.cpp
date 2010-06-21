@@ -7,14 +7,12 @@
 #include "wrap_world.hpp"
 
 #include <boost/python.hpp>
-#include <Box2D/Common/b2Settings.h>
 
+using namespace pysics;
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pysics)
 {
-    using namespace pysics;
-
     wrap_exception();
     wrap_vec_2();
     wrap_vertex_array();
