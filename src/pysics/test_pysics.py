@@ -38,7 +38,8 @@ def manage_polygon_fixture():
 @contextmanager
 def manage_loop_fixture():
     with manage_body() as body:
-        loop_fixture = body.create_loop_fixture(None)
+        vertex_array = VertexArray()
+        loop_fixture = body.create_loop_fixture(vertex_array)
         yield loop_fixture
         body.destroy_fixture(loop_fixture)
 

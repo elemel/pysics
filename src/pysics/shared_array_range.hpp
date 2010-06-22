@@ -75,6 +75,17 @@ namespace pysics {
             assert(first_ <= last_);
             return first_ == last_;
         }
+
+        boost::shared_array<T> arr() const
+        {
+            return arr_;
+        }
+
+        T* ptr() const
+        {
+            return first_;
+        }
+
     };
 }
 

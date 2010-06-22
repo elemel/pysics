@@ -1,5 +1,7 @@
 #include "wrap_body.hpp"
 
+#include "wrap_vertex_array.hpp"
+
 #include <boost/python.hpp>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 #include <Box2D/Collision/Shapes/b2EdgeShape.h>
@@ -153,7 +155,7 @@ namespace pysics {
     }
 
     b2Fixture *create_loop_fixture(b2Body *body,
-                                   object vertices,
+                                   VertexArray vertices,
                                    b2UserData user_data,
                                    float32 friction,
                                    float32 restitution,
@@ -164,6 +166,8 @@ namespace pysics {
                                    uint16 group_index)
     {
         b2LoopShape loop_shape;
+        loop_shape.m_vertices = vertices.ptr();
+        loop_shape.m_count = vertices.size();
 
         b2FixtureDef fixture_def;
         fixture_def.shape = &loop_shape;
