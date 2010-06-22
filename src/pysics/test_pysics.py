@@ -8,8 +8,13 @@ def manage_world():
     yield world
 
 @contextmanager
-def manage_body():
-    with manage_world() as world:
+def manage_body(world=None):
+    if world is None:
+        with manage_world() as world:
+            body = world.create_body()
+            yield body
+            world.destroy_body(body)
+    else:
         body = world.create_body()
         yield body
         world.destroy_body(body)
@@ -43,6 +48,12 @@ def manage_loop_fixture():
         yield loop_fixture
         body.destroy_fixture(loop_fixture)
 
+@contextmanager
+def manage_revolute_joint(world, *args, **kwargs):
+    revolute_joint = world.create_revolute_joint(*args, **kwargs)
+    yield revolute_joint
+    world.destroy_joint(revolute_joint)
+
 def test_body_types_are_distinct():
     body_types = [STATIC_BODY, KINEMATIC_BODY, DYNAMIC_BODY]
     assert len(body_types) == len(set(body_types))
@@ -72,6 +83,13 @@ def test_exercise():
         pass
     with manage_loop_fixture() as fixture:
         pass
+
+def test_create_revolute_joint():
+    with manage_world() as world:
+        with manage_body(world) as body_a:
+            with manage_body(world) as body_b:
+                with manage_revolute_joint(world, body_a, body_b, (0, 0)) as revolute_joint:
+                    pass
 
 if __name__ == '__main__':
     nose.main()
