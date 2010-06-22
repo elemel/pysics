@@ -57,39 +57,63 @@ namespace pysics {
         ;
     }
 
+    void wrap_revolute_joint()
+    {
+        class_<b2RevoluteJoint, bases<b2Joint> >("RevoluteJoint", no_init)
+            .add_property("joint_angle", &b2RevoluteJoint::GetJointAngle)
+            .add_property("joint_speed", &b2RevoluteJoint::GetJointSpeed)
+            .add_property("limit_enabled", &b2RevoluteJoint::IsLimitEnabled, &b2RevoluteJoint::EnableLimit)
+            .add_property("lower_limit", &b2RevoluteJoint::GetLowerLimit)
+            .add_property("upper_limit", &b2RevoluteJoint::GetUpperLimit)
+            .add_property("motor_enabled", &b2RevoluteJoint::IsMotorEnabled, &b2RevoluteJoint::EnableMotor)
+            .add_property("motor_speed", &b2RevoluteJoint::GetMotorSpeed, &b2RevoluteJoint::SetMotorSpeed)
+            .add_property("motor_torque", &b2RevoluteJoint::GetMotorTorque)
+
+            .def("get_joint_angle", &b2RevoluteJoint::GetJointAngle)
+            .def("get_joint_speed", &b2RevoluteJoint::GetJointSpeed)
+            .def("is_limit_enabled", &b2RevoluteJoint::IsLimitEnabled)
+            .def("set_limit_enabled", &b2RevoluteJoint::EnableLimit)
+            .def("get_lower_limit", &b2RevoluteJoint::GetLowerLimit)
+            .def("get_upper_limit", &b2RevoluteJoint::GetUpperLimit)
+            .def("set_limits", &b2RevoluteJoint::SetLimits)
+            .def("is_motor_enabled", &b2RevoluteJoint::IsMotorEnabled)
+            .def("set_motor_enabled", &b2RevoluteJoint::EnableMotor)
+            .def("get_motor_speed", &b2RevoluteJoint::GetMotorSpeed)
+            .def("set_motor_speed", &b2RevoluteJoint::SetMotorSpeed)
+            .def("set_max_motor_torque", &b2RevoluteJoint::SetMaxMotorTorque)
+            .def("get_motor_torque", &b2RevoluteJoint::GetMotorTorque)
+        ;
+    }
+
+    void wrap_prismatic_joint()
+    {
+    }
+
     void wrap_distance_joint()
     {
     }
 
-    void wrap_friction_joint()
-    {
-    }
-    
-    void wrap_gear_joint()
-    {
-    }
-    
-    void wrap_line_joint()
-    {
-    }
-    
-    void wrap_mouse_joint()
-    {
-    }
-    
-    void wrap_prismatic_joint()
-    {
-    }
-    
     void wrap_pulley_joint()
     {
     }
-    
-    void wrap_revolute_joint()
+
+    void wrap_mouse_joint()
     {
     }
-    
+
+    void wrap_gear_joint()
+    {
+    }
+
+    void wrap_line_joint()
+    {
+    }
+
     void wrap_weld_joint()
+    {
+    }
+
+    void wrap_friction_joint()
     {
     }
 }

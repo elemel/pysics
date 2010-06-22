@@ -33,13 +33,13 @@ BOOST_PYTHON_MODULE(pysics)
     wrap_fixture();
 
     wrap_joint();
+    wrap_revolute_joint();
+    wrap_prismatic_joint();
     wrap_distance_joint();
-    wrap_friction_joint();
+    wrap_pulley_joint();
+    wrap_mouse_joint();
     wrap_gear_joint();
     wrap_line_joint();
-    wrap_mouse_joint();
-    wrap_prismatic_joint();
-    wrap_pulley_joint();
-    wrap_revolute_joint();
     wrap_weld_joint();
+    wrap_friction_joint();
 }
