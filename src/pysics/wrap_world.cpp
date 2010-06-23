@@ -18,24 +18,58 @@
 using namespace boost::python;
 
 namespace pysics {
-    b2Body *create_body(b2World *world,
-                        b2BodyType type,
-                        b2Vec2 position,
-                        float32 angle,
-                        b2Vec2 linear_velocity,
-                        float32 angular_velocity,
-                        float32 linear_damping,
-                        float32 angular_damping,
-                        bool allow_sleep,
-                        bool awake,
-                        bool fixed_rotation,
-                        bool bullet,
-                        bool active,
-                        b2UserData user_data,
-                        float32 inertia_scale)
+    b2Body *create_body_1(b2World *world,
+                          b2BodyType type,
+                          b2Vec2 position,
+                          float32 angle,
+                          b2Vec2 linear_velocity,
+                          float32 angular_velocity,
+                          float32 linear_damping,
+                          float32 angular_damping,
+                          bool allow_sleep,
+                          bool awake,
+                          bool fixed_rotation,
+                          bool bullet,
+                          bool active,
+                          b2UserData user_data,
+                          float32 inertia_scale)
     {
         b2BodyDef body_def;
         body_def.type = type;
+        body_def.position = position;
+        body_def.angle = angle;
+        body_def.linearVelocity = linear_velocity;
+        body_def.angularVelocity = angular_velocity;
+        body_def.linearDamping = linear_damping;
+        body_def.angularDamping = angular_damping;
+        body_def.allowSleep = allow_sleep;
+        body_def.awake = awake;
+        body_def.fixedRotation = fixed_rotation;
+        body_def.bullet = bullet;
+        body_def.active = active;
+        body_def.userData = user_data;
+        body_def.inertiaScale = inertia_scale;
+        return world->CreateBody(&body_def);
+    }
+
+    template <b2BodyType T>
+    b2Body *create_body_2(b2World *world,
+                          b2Vec2 position,
+                          float32 angle,
+                          b2Vec2 linear_velocity,
+                          float32 angular_velocity,
+                          float32 linear_damping,
+                          float32 angular_damping,
+                          bool allow_sleep,
+                          bool awake,
+                          bool fixed_rotation,
+                          bool bullet,
+                          bool active,
+                          b2UserData user_data,
+                          float32 inertia_scale)
+    {
+        b2BodyDef body_def;
+        body_def.type = T;
         body_def.position = position;
         body_def.angle = angle;
         body_def.linearVelocity = linear_velocity;
@@ -166,9 +200,54 @@ namespace pysics {
             .def("set_contact_filter", &b2World::SetContactFilter)
             .def("set_contact_listener", &b2World::SetContactListener)
             .def("set_debug_draw", &b2World::SetDebugDraw)
-            .def("create_body", &create_body, return_internal_reference<>(),
+            .def("create_body", &create_body_1, return_internal_reference<>(),
                  (arg("self"),
-                  arg("type")=b2_staticBody,
+                  arg("type"),
+                  arg("position")=b2Vec2(0.0f, 0.0f),
+                  arg("angle")=0.0f,
+                  arg("linear_velocity")=b2Vec2(0.0f, 0.0f),
+                  arg("angular_velocity")=0.0f,
+                  arg("linear_damping")=0.0f,
+                  arg("angular_damping")=0.0f,
+                  arg("allow_sleep")=true,
+                  arg("awake")=true,
+                  arg("fixed_rotation")=false,
+                  arg("bullet")=false,
+                  arg("active")=true,
+                  arg("user_data")=object(),
+                  arg("inertia_scale")=1.0f))
+            .def("create_static_body", &create_body_2<b2_staticBody>, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("position")=b2Vec2(0.0f, 0.0f),
+                  arg("angle")=0.0f,
+                  arg("linear_velocity")=b2Vec2(0.0f, 0.0f),
+                  arg("angular_velocity")=0.0f,
+                  arg("linear_damping")=0.0f,
+                  arg("angular_damping")=0.0f,
+                  arg("allow_sleep")=true,
+                  arg("awake")=true,
+                  arg("fixed_rotation")=false,
+                  arg("bullet")=false,
+                  arg("active")=true,
+                  arg("user_data")=object(),
+                  arg("inertia_scale")=1.0f))
+            .def("create_kinematic_body", &create_body_2<b2_kinematicBody>, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("position")=b2Vec2(0.0f, 0.0f),
+                  arg("angle")=0.0f,
+                  arg("linear_velocity")=b2Vec2(0.0f, 0.0f),
+                  arg("angular_velocity")=0.0f,
+                  arg("linear_damping")=0.0f,
+                  arg("angular_damping")=0.0f,
+                  arg("allow_sleep")=true,
+                  arg("awake")=true,
+                  arg("fixed_rotation")=false,
+                  arg("bullet")=false,
+                  arg("active")=true,
+                  arg("user_data")=object(),
+                  arg("inertia_scale")=1.0f))
+            .def("create_dynamic_body", &create_body_2<b2_dynamicBody>, return_internal_reference<>(),
+                 (arg("self"),
                   arg("position")=b2Vec2(0.0f, 0.0f),
                   arg("angle")=0.0f,
                   arg("linear_velocity")=b2Vec2(0.0f, 0.0f),

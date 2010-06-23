@@ -137,7 +137,7 @@ namespace pysics {
         if (len(vertices)) {
             set_vertices(&polygon_shape, vertices);
         } else {
-            polygon_shape.SetAsBox(1.0f, 1.0f);
+            polygon_shape.SetAsBox(0.5f, 0.5f);
         }
 
         b2FixtureDef fixture_def;
@@ -183,6 +183,37 @@ namespace pysics {
         return body->CreateFixture(&fixture_def);
     }
 
+    b2Fixture *create_box_fixture(b2Body *body,
+                                  float32 half_width,
+                                  float32 half_height,
+                                  b2Vec2 center,
+                                  float32 angle,
+                                  b2UserData user_data,
+                                  float32 friction,
+                                  float32 restitution,
+                                  float32 density,
+                                  bool sensor,
+                                  uint16 category_bits,
+                                  uint16 mask_bits,
+                                  uint16 group_index)
+    {
+        b2PolygonShape polygon_shape;
+        polygon_shape.SetAsBox(half_width, half_height, center, angle);
+
+        b2FixtureDef fixture_def;
+        fixture_def.shape = &polygon_shape;
+        fixture_def.userData = user_data;
+        fixture_def.friction = friction;
+        fixture_def.restitution = restitution;
+        fixture_def.density = density;
+        fixture_def.isSensor = sensor;
+        fixture_def.filter.categoryBits = category_bits;
+        fixture_def.filter.maskBits = mask_bits;
+        fixture_def.filter.groupIndex = group_index;
+
+        return body->CreateFixture(&fixture_def);
+    }
+
     void wrap_body()
     {
         b2Fixture *(b2Body::*get_fixture_list)() = &b2Body::GetFixtureList;
@@ -206,7 +237,7 @@ namespace pysics {
             .def("create_circle_fixture", &create_circle_fixture, return_internal_reference<>(),
                  (arg("self"),
                   arg("position")=b2Vec2(0.0f, 0.0f),
-                  arg("radius")=1.0f,
+                  arg("radius")=0.5f,
                   arg("user_data")=object(),
                   arg("friction")=0.2f,
                   arg("restitution")=0.0f,
@@ -241,6 +272,20 @@ namespace pysics {
             .def("create_loop_fixture", &create_loop_fixture, return_internal_reference<>(),
                  (arg("self"),
                   arg("vertices"),
+                  arg("user_data")=object(),
+                  arg("friction")=0.2f,
+                  arg("restitution")=0.0f,
+                  arg("density")=0.0f,
+                  arg("sensor")=false,
+                  arg("category_bits")=0x0001,
+                  arg("mask_bits")=0xffff,
+                  arg("group_index")=0))
+            .def("create_box_fixture", &create_box_fixture, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("half_width")=0.5f,
+                  arg("half_height")=0.5f,
+                  arg("center")=b2Vec2(0.0f, 0.0f),
+                  arg("angle")=0.0f,
                   arg("user_data")=object(),
                   arg("friction")=0.2f,
                   arg("restitution")=0.0f,

@@ -11,11 +11,11 @@ def manage_world():
 def manage_body(world=None):
     if world is None:
         with manage_world() as world:
-            body = world.create_body()
+            body = world.create_static_body()
             yield body
             world.destroy_body(body)
     else:
-        body = world.create_body()
+        body = world.create_static_body()
         yield body
         world.destroy_body(body)
 
