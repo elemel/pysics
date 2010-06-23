@@ -48,24 +48,22 @@ def draw_body(body):
 def draw_shape(shape):
     if shape.type == pysics.CIRCLE_SHAPE:
         x, y = shape.position
-        draw_circle(x, y, shape.radius)
+        vertices = generate_circle_vertices(x, y, shape.radius, 16)
+        draw_vertices(vertices, GL_LINE_LOOP)
+        draw_vertices([(x, y), (x + shape.radius, y)], GL_LINES)
     elif shape.type == pysics.EDGE_SHAPE:
         pass
     elif shape.type == pysics.POLYGON_SHAPE:
-        draw_polygon(shape.vertices)
+        draw_vertices(shape.vertices, GL_LINE_LOOP)
     elif shape.type == pysics.LOOP_SHAPE:
         pass
 
-def generate_circle_vertices(x, y, radius, vertex_count=16):
+def generate_circle_vertices(x, y, radius, vertex_count):
     for i in xrange(vertex_count):
         angle = 2.0 * math.pi * float(i) / float(vertex_count)
-        yield math.cos(angle), math.sin(angle)
+        yield x + radius * math.cos(angle), y + radius * math.sin(angle)
 
-def draw_circle(x, y, radius, vertex_count=16, mode=GL_LINE_LOOP):
-    vertices = generate_circle_vertices(x, y, radius, vertex_count)
-    draw_polygon(vertices, mode)
-
-def draw_polygon(vertices, mode=GL_LINE_LOOP):
+def draw_vertices(vertices, mode):
     with manage_mode(mode):
         for x, y in vertices:
             glVertex2f(x, y)
@@ -77,8 +75,8 @@ class MyWindow(pyglet.window.Window):
         self.world_time = 0.0
         self.world_dt = 1.0 / 60.0
         self.world = pysics.World((0.0, -10.0), True)
-        body = self.world.create_dynamic_body(angular_velocity=5.0)
-        body.create_box_fixture()
+        self.world.create_kinematic_body(angular_velocity=-0.5).create_circle_fixture(radius=1.5)
+        self.world.create_dynamic_body(position=(0.0, 5.0), angular_velocity=1.0).create_box_fixture()
         self.clock_display = pyglet.clock.ClockDisplay()
         pyglet.clock.schedule_interval(self.step, 0.1 * self.world_dt)
 
