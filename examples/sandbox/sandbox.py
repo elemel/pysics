@@ -49,12 +49,26 @@ def draw_shape(shape):
     if shape.type == pysics.CIRCLE_SHAPE:
         x, y = shape.position
         draw_circle(x, y, shape.radius)
+    elif shape.type == pysics.EDGE_SHAPE:
+        pass
+    elif shape.type == pysics.POLYGON_SHAPE:
+        draw_polygon(shape.vertices)
+    elif shape.type == pysics.LOOP_SHAPE:
+        pass
 
-def draw_circle(x, y, radius, mode=GL_LINE_LOOP, vertex_count=16):
+def generate_circle_vertices(x, y, radius, vertex_count=16):
+    for i in xrange(vertex_count):
+        angle = 2.0 * math.pi * float(i) / float(vertex_count)
+        yield math.cos(angle), math.sin(angle)
+
+def draw_circle(x, y, radius, vertex_count=16, mode=GL_LINE_LOOP):
+    vertices = generate_circle_vertices(x, y, radius, vertex_count)
+    draw_polygon(vertices, mode)
+
+def draw_polygon(vertices, mode=GL_LINE_LOOP):
     with manage_mode(mode):
-        for i in xrange(vertex_count):
-            angle = 2.0 * math.pi * float(i) / float(vertex_count)
-            glVertex2f(math.cos(angle), math.sin(angle))
+        for x, y in vertices:
+            glVertex2f(x, y)
 
 class MyWindow(pyglet.window.Window):
     def __init__(self, **kwargs):
@@ -63,8 +77,8 @@ class MyWindow(pyglet.window.Window):
         self.world_time = 0.0
         self.world_dt = 1.0 / 60.0
         self.world = pysics.World((0.0, -10.0), True)
-        body = self.world.create_body(pysics.DYNAMIC_BODY)
-        body.create_circle_fixture((0.0, 0.0), 1.0)
+        body = self.world.create_dynamic_body(angular_velocity=5.0)
+        body.create_box_fixture()
         self.clock_display = pyglet.clock.ClockDisplay()
         pyglet.clock.schedule_interval(self.step, 0.1 * self.world_dt)
 
@@ -80,13 +94,13 @@ class MyWindow(pyglet.window.Window):
 
     def on_draw(self):
         self.clear()
-        with manage_screen_transform(self.width, self.height, 0.05):
+        with manage_screen_transform(self.width, self.height, 0.1):
             for body in iter_links(self.world.body_list):
                 draw_body(body)
         self.clock_display.draw()
 
 def main():
-    window = MyWindow()
+    window = MyWindow(fullscreen=True)
     pyglet.app.run()
 
 if __name__ == '__main__':
