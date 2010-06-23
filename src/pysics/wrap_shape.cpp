@@ -113,16 +113,15 @@ namespace pysics {
         class_<b2CircleShape, bases<b2Shape> >("CircleShape")
             .add_property("child_count", &b2CircleShape::GetChildCount)
             .add_property("vertex_count", &b2CircleShape::GetVertexCount)
-            .def_readwrite("position", &b2CircleShape::m_p)
-
+            .add_property("position", make_getter(&b2CircleShape::m_p, return_value_policy<return_by_value>()), make_setter(&b2CircleShape::m_p, return_value_policy<return_by_value>()))
             .def("__init__", make_constructor(construct_circle_shape))
             .def("get_child_count", &b2CircleShape::GetChildCount)
             .def("get_support", &b2CircleShape::GetSupport)
             .def("get_support_vertex", &b2CircleShape::GetSupportVertex, return_value_policy<copy_const_reference>())
             .def("get_vertex_count", &b2CircleShape::GetVertexCount)
             .def("get_vertex", &b2CircleShape::GetVertex, return_value_policy<copy_const_reference>())
-            .def("get_position", make_getter(&b2CircleShape::m_p))
-            .def("set_position", make_setter(&b2CircleShape::m_p))
+            .def("get_position", make_getter(&b2CircleShape::m_p, return_value_policy<return_by_value>()))
+            .def("set_position", make_setter(&b2CircleShape::m_p, return_value_policy<return_by_value>()))
         ;
     }
 
@@ -130,14 +129,14 @@ namespace pysics {
     {
         class_<b2EdgeShape, bases<b2Shape> >("EdgeShape")
             .add_property("child_count", &b2EdgeShape::GetChildCount)
-            .def_readwrite("vertex_1", &b2EdgeShape::m_vertex1)
-            .def_readwrite("vertex_2", &b2EdgeShape::m_vertex2)
+            .add_property("vertex_1", make_getter(&b2EdgeShape::m_vertex1, return_value_policy<return_by_value>()), make_setter(&b2EdgeShape::m_vertex1, return_value_policy<return_by_value>()))
+            .add_property("vertex_2", make_getter(&b2EdgeShape::m_vertex2, return_value_policy<return_by_value>()), make_setter(&b2EdgeShape::m_vertex2, return_value_policy<return_by_value>()))
 
             .def("get_child_count", &b2EdgeShape::GetChildCount)
-            .def("get_vertex_1", make_getter(&b2EdgeShape::m_vertex1))
-            .def("set_vertex_1", make_setter(&b2EdgeShape::m_vertex1))
-            .def("get_vertex_2", make_getter(&b2EdgeShape::m_vertex2))
-            .def("set_vertex_2", make_setter(&b2EdgeShape::m_vertex2))
+            .def("get_vertex_1", make_getter(&b2EdgeShape::m_vertex1, return_value_policy<return_by_value>()))
+            .def("set_vertex_1", make_setter(&b2EdgeShape::m_vertex1, return_value_policy<return_by_value>()))
+            .def("get_vertex_2", make_getter(&b2EdgeShape::m_vertex2, return_value_policy<return_by_value>()))
+            .def("set_vertex_2", make_setter(&b2EdgeShape::m_vertex2, return_value_policy<return_by_value>()))
         ;
     }
 
