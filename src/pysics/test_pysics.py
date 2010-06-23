@@ -54,6 +54,12 @@ def manage_revolute_joint(world, *args, **kwargs):
     yield revolute_joint
     world.destroy_joint(revolute_joint)
 
+@contextmanager
+def manage_prismatic_joint(world, *args, **kwargs):
+    prismatic_joint = world.create_prismatic_joint(*args, **kwargs)
+    yield prismatic_joint
+    world.destroy_joint(prismatic_joint)
+
 def test_body_types_are_distinct():
     body_types = [STATIC_BODY, KINEMATIC_BODY, DYNAMIC_BODY]
     assert len(body_types) == len(set(body_types))
@@ -89,6 +95,13 @@ def test_create_revolute_joint():
         with manage_body(world) as body_a:
             with manage_body(world) as body_b:
                 with manage_revolute_joint(world, body_a, body_b, (0, 0)) as revolute_joint:
+                    pass
+
+def test_create_prismatic_joint():
+    with manage_world() as world:
+        with manage_body(world) as body_a:
+            with manage_body(world) as body_b:
+                with manage_prismatic_joint(world, body_a, body_b, (0, 0), (0, 0)) as prismatic_joint:
                     pass
 
 if __name__ == '__main__':

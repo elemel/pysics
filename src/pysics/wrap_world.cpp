@@ -78,9 +78,30 @@ namespace pysics {
         return world->CreateJoint(&revolute_joint_def);
     }
 
-    b2Joint *create_prismatic_joint(b2World *world)
+    b2Joint *create_prismatic_joint(b2World *world,
+                                    b2Body *body_a,
+                                    b2Body *body_b,
+                                    b2Vec2 anchor,
+                                    b2Vec2 axis,
+                                    bool limit_enabled,
+                                    float32 lower_translation,
+                                    float32 upper_translation,
+                                    bool motor_enabled,
+                                    float32 max_motor_force,
+                                    float32 motor_speed,
+                                    b2UserData user_data,
+                                    bool collide_connected)
     {
         b2PrismaticJointDef prismatic_joint_def;
+        prismatic_joint_def.Initialize(body_a, body_b, anchor, axis);
+        prismatic_joint_def.enableLimit = limit_enabled;
+        prismatic_joint_def.lowerTranslation = lower_translation;
+        prismatic_joint_def.upperTranslation = upper_translation;
+        prismatic_joint_def.enableMotor = motor_enabled;
+        prismatic_joint_def.maxMotorForce = max_motor_force;
+        prismatic_joint_def.motorSpeed = motor_speed;
+        prismatic_joint_def.userData = user_data;
+        prismatic_joint_def.collideConnected = collide_connected;
         return world->CreateJoint(&prismatic_joint_def);
     }
 
@@ -163,7 +184,20 @@ namespace pysics {
                   arg("max_motor_torque")=0.0f,
                   arg("user_data")=object(),
                   arg("collide_connected")=false))
-            .def("create_prismatic_joint", &create_prismatic_joint, return_internal_reference<>())
+            .def("create_prismatic_joint", &create_prismatic_joint, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("body_a"),
+                  arg("body_b"),
+                  arg("anchor"),
+                  arg("axis"),
+                  arg("limit_enabled")=false,
+                  arg("lower_translation")=0.0f,
+                  arg("upper_translation")=0.0f,
+                  arg("motor_enabled")=false,
+                  arg("max_motor_force")=0.0f,
+                  arg("motor_speed")=0.0f,
+                  arg("user_data")=object(),
+                  arg("collide_connected")=false))
             .def("create_distance_joint", &create_distance_joint, return_internal_reference<>())
             .def("create_pulley_joint", &create_pulley_joint, return_internal_reference<>())
             .def("create_mouse_joint", &create_mouse_joint, return_internal_reference<>())
