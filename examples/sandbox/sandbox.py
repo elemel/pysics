@@ -75,16 +75,6 @@ def load_document(document, world):
     matrix = pinky.Matrix.create_scale(0.01, -0.01) * pinky.Matrix.create_translate(-0.5 * width, -0.5 * height)
     load_element(document.root, matrix, {}, world, None)
 
-def parse_body_type(body_type_str):
-    if body_type_str == 'static':
-        return pysics.STATIC_BODY
-    elif body_type_str == 'kinematic':
-        return pysics.KINEMATIC_BODY
-    elif body_type_str == 'dynamic':
-        return pysics.DYNAMIC_BODY
-    else:
-        raise ValueError('invalid body type: %s' % body_type_str)
-
 def parse_float_tuple(float_tuple_str):
     return tuple(float(s) for s in float_tuple_str.replace(',', ' ').split())
 
@@ -97,8 +87,7 @@ def parse_bool(bool_str):
         raise ValueError('invalid boolean: %s' % bool_str)
 
 def parse_body_attributes(attributes):
-    return dict(type=parse_body_type(attributes.get('body-type', 'static')),
-                linear_velocity=parse_float_tuple(attributes.get('linear-velocity', '0 0')),
+    return dict(linear_velocity=parse_float_tuple(attributes.get('linear-velocity', '0 0')),
                 angular_velocity = float(attributes.get('angular-velocity', '0')),
                 linear_damping = float(attributes.get('linear-damping', '0')),
                 angular_damping = float(attributes.get('angular-damping', '0')),
@@ -118,6 +107,10 @@ def parse_shape_attributes(attributes):
                 mask_bits=int(attributes.get('mask-bits', 'ffff'), 16),
                 group_index=int(attributes.get('group-index', '0')))
 
+BODY_TYPES = {'static-body': pysics.STATIC_BODY,
+              'kinematic-body': pysics.KINEMATIC_BODY,
+              'dynamic-body': pysics.DYNAMIC_BODY}
+
 def load_element(element, matrix, attributes, world, body):
     matrix = matrix * element.matrix
     local_attributes = dict(element.attributes)
@@ -126,10 +119,14 @@ def load_element(element, matrix, attributes, world, body):
     attributes = dict(attributes)
     attributes.update(local_attributes)
     type_ = local_attributes.get('type')
-    if body is None and (type_ == 'body' or element.shape is not None):
+    if type_ in BODY_TYPES or type_ is None and body is None and element.shape is not None:
+        if type_ is None:
+            body_type = pysics.STATIC_BODY
+        else:
+            body_type = BODY_TYPES[type_]
         body_attributes = parse_body_attributes(attributes)
-        body = world.create_body(**body_attributes)
-    if element.shape is not None:
+        body = world.create_body(type=body_type, **body_attributes)
+    if body is not None and element.shape is not None:
         transformed_shape = element.shape.transform(matrix)
         shape_attributes = parse_shape_attributes(attributes)
         if isinstance(transformed_shape, pinky.Circle):
