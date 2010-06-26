@@ -24,7 +24,6 @@ def manage_mode(mode):
     yield
     glEnd()
 
-
 @contextmanager
 def manage_screen_transform(width, height, scale=1.0, x=0.0, y=0.0):
     with manage_matrix():
