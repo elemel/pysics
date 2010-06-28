@@ -69,7 +69,8 @@ def draw_vertices(vertices, mode):
         for x, y in vertices:
             glVertex2f(x, y)
 
-def load_document(document, world):
+def load_document(path, world):
+    document = pinky.Document(path)
     width = float(document.root.attributes['width'])
     height = float(document.root.attributes['height'])
     matrix = pinky.Matrix.create_scale(0.01, -0.01) * pinky.Matrix.create_translate(-0.5 * width, -0.5 * height)
@@ -145,14 +146,14 @@ def load_element(element, matrix, attributes, world, body):
         load_element(child, matrix, attributes, world, body)
 
 class MyWindow(pyglet.window.Window):
-    def __init__(self, documents, **kwargs):
+    def __init__(self, paths, **kwargs):
         super(MyWindow, self).__init__(**kwargs)
         self.screen_time = 0.0
         self.world_time = 0.0
         self.world_dt = 1.0 / 60.0
         self.world = pysics.World((0.0, -10.0), True)
-        for document in documents:
-            load_document(document, self.world)
+        for path in paths:
+            load_document(path, self.world)
         self.clock_display = pyglet.clock.ClockDisplay()
         pyglet.clock.schedule_interval(self.step, 0.1 * self.world_dt)
 
@@ -174,10 +175,9 @@ class MyWindow(pyglet.window.Window):
         self.clock_display.draw()
 
 def main():
-    documents = [pinky.Document(arg) for arg in sys.argv[1:]]
     config = pyglet.gl.Config(double_buffer=True, sample_buffers=1, samples=4,
                               depth_size=8)
-    window = MyWindow(documents, fullscreen=True, config=config)
+    window = MyWindow(sys.argv[1:], fullscreen=True, config=config)
     pyglet.app.run()
 
 if __name__ == '__main__':
