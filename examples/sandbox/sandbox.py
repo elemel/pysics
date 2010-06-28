@@ -98,7 +98,7 @@ def parse_body_attributes(attributes):
                 active = parse_bool(attributes.get('active', 'true')),
                 inertia_scale = float(attributes.get('inertia-scale', '1')))
 
-def parse_shape_attributes(attributes):
+def parse_fixture_attributes(attributes):
     return dict(friction=float(attributes.get('friction', '0.2')),
                 restitution=float(attributes.get('restitution', '0')),
                 density=float(attributes.get('density', '1')),
@@ -115,7 +115,7 @@ def load_element(element, matrix, attributes, world, body):
     matrix = matrix * element.matrix
     local_attributes = dict(element.attributes)
     for attribute in ('style', 'desc'):
-        local_attributes.update(pinky.parse_style(local_attributes.pop(attribute, '')))
+        local_attributes.update(pinky.parse_css_attributes(local_attributes.pop(attribute, '')))
     attributes = dict(attributes)
     attributes.update(local_attributes)
     type_ = local_attributes.get('type')
@@ -128,20 +128,80 @@ def load_element(element, matrix, attributes, world, body):
         body = world.create_body(type=body_type, **body_attributes)
     if body is not None and element.shape is not None:
         transformed_shape = element.shape.transform(matrix)
-        shape_attributes = parse_shape_attributes(attributes)
+        fixture_attributes = parse_fixture_attributes(attributes)
         if isinstance(transformed_shape, pinky.Circle):
             body.create_circle_fixture(position=(transformed_shape.cx,
                                                  transformed_shape.cy),
                                        radius=transformed_shape.r,
-                                       **shape_attributes)
+                                       **fixture_attributes)
         elif isinstance(transformed_shape, pinky.Polygon):
             if transformed_shape.area >= 0.0:
                 vertices = transformed_shape.points
             else:
                 vertices = list(reversed(transformed_shape.points))
-            body.create_polygon_fixture(vertices=vertices, **shape_attributes)
+            body.create_polygon_fixture(vertices=vertices,
+                                        **fixture_attributes)
     for child in element.children:
         load_element(child, matrix, attributes, world, body)
+
+class MyDocumentWalker(pinky.DocumentWalker):
+    def __init__(self, file, world):
+        super(MyDocumentWalker, self).__init__(file)
+        self.world = world
+        self.body_stack = [None]
+        self.joint_stack = [None]
+
+    def open_element(self, element):
+        super(MyDocumentWalker, self).open_element(element)
+        self.body_stack.append(self.body)
+        self.joint_stack.append(self.joint)
+        type_ = self.get_local_attribute('type')
+        if type_ is None:
+            pass
+        elif type_.endswith('-body'):
+            body_type = BODY_TYPES[type_]
+            body_attributes = parse_body_attributes(self.attributes)
+            self.body = self.world.create_body(body_type, **body_attributes)
+        elif type_.endswith('-joint'):
+            pass
+        if self.shape is not None:
+            if self.body is None and self.joint is None:
+                self.body = self.world.create_static_body()
+            if self.body is not None:
+                self.create_fixture()
+
+    def close_element(self):
+        self.joint_stack.pop()
+        self.body_stack.pop()
+        super(MyDocumentWalker, self).close_element()
+
+    def create_fixture(self):
+        transformed_shape = self.shape.transform(self.matrix)
+        fixture_attributes = parse_fixture_attributes(self.attributes)
+        if isinstance(transformed_shape, pinky.Circle):
+            position = transformed_shape.cx, transformed_shape.cy
+            self.body.create_circle_fixture(position=position,
+                                            radius=transformed_shape.r,
+                                            **fixture_attributes)
+        elif isinstance(transformed_shape, pinky.Polygon):
+            if transformed_shape.area >= 0.0:
+                vertices = transformed_shape.points
+            else:
+                vertices = list(reversed(transformed_shape.points))
+            self.body.create_polygon_fixture(vertices=vertices,
+                                             **fixture_attributes)
+
+    @property
+    def body(self):
+        return self.body_stack[-1]
+
+    @body.setter
+    def body(self, body):
+        self.body_stack[-1] = body
+
+    @property
+    def joint(self):
+        return self.joint_stack[-1]
 
 class MyWindow(pyglet.window.Window):
     def __init__(self, documents, **kwargs):
@@ -173,6 +233,9 @@ class MyWindow(pyglet.window.Window):
         self.clock_display.draw()
 
 def main():
+    world = pysics.World((0.0, 0.0), True)
+    for arg in sys.argv[1:]:
+        MyDocumentWalker(arg, world).walk()
     documents = [pinky.Document(arg) for arg in sys.argv[1:]]
     config = pyglet.gl.Config(double_buffer=True, sample_buffers=1, samples=4,
                               depth_size=8)
