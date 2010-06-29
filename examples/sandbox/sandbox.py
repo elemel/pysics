@@ -89,6 +89,10 @@ class AttributeStack(object):
                 return attributes[name]
         return default
 
+class JointCreator(object):
+    def create(self):
+        pass
+
 class DocumentLoader(object):
     body_types = {'static-body': pysics.STATIC_BODY,
                   'kinematic-body': pysics.KINEMATIC_BODY,
@@ -109,6 +113,8 @@ class DocumentLoader(object):
         height = float(self.helper.get_attribute(root, pinky.SVG_NAMESPACE, 'height'))
         matrix = pinky.Matrix.create_scale(0.01, -0.01) * pinky.Matrix.create_translate(-0.5 * width, -0.5 * height)
         self.load_element(root, matrix)
+        for joint_creator in self.joint_creators:
+            joint_creator.create()
 
     def load_element(self, element, matrix):
         local_matrix = pinky.Matrix.from_string(self.helper.get_attribute(element, pinky.SVG_NAMESPACE, 'transform', ''))
