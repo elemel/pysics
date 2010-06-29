@@ -94,39 +94,55 @@ class JointCreator(object):
         pass
 
 class DocumentLoader(object):
-    body_types = {'static-body': pysics.STATIC_BODY,
-                  'kinematic-body': pysics.KINEMATIC_BODY,
-                  'dynamic-body': pysics.DYNAMIC_BODY}
+    body_types = {
+        'static-body': pysics.STATIC_BODY,
+        'kinematic-body': pysics.KINEMATIC_BODY,
+        'dynamic-body': pysics.DYNAMIC_BODY,
+    }
+
+    joint_types = {
+        'revolute-joint': pysics.REVOLUTE_JOINT,
+        'prismatic-joint': pysics.PRISMATIC_JOINT,
+        'distance-joint': pysics.DISTANCE_JOINT,
+        'pulley-joint': pysics.PULLEY_JOINT,
+        'mouse-joint': pysics.MOUSE_JOINT,
+        'gear-joint': pysics.GEAR_JOINT,
+        'line-joint': pysics.LINE_JOINT,
+        'weld-joint': pysics.WELD_JOINT,
+        'friction-joint': pysics.FRICTION_JOINT,
+    }
 
     def __init__(self, path, world):
         self.path = path
         self.world = world
-        self.helper = pinky.DOMHelper()
         self.attribute_stack = AttributeStack()
         self.body = None
         self.joint_creator = None
         self.joint_creators = []
 
     def load(self):
-        root = self.helper.load(self.path)
-        width = float(self.helper.get_attribute(root, pinky.SVG_NAMESPACE, 'width'))
-        height = float(self.helper.get_attribute(root, pinky.SVG_NAMESPACE, 'height'))
-        matrix = pinky.Matrix.create_scale(0.01, -0.01) * pinky.Matrix.create_translate(-0.5 * width, -0.5 * height)
+        document = minidom.parse(self.path)
+        root = document.documentElement
+        width = float(root.getAttribute('width'))
+        height = float(root.getAttribute('height'))
+        matrix = (pinky.Matrix.create_scale(0.01, -0.01) *
+                  pinky.Matrix.create_translate(-0.5 * width, -0.5 * height))
         self.load_element(root, matrix)
         for joint_creator in self.joint_creators:
             joint_creator.create()
 
     def load_element(self, element, matrix):
-        local_matrix = pinky.Matrix.from_string(self.helper.get_attribute(element, pinky.SVG_NAMESPACE, 'transform', ''))
+        local_matrix = pinky.Matrix.from_string(element.getAttribute('transform'))
         matrix = matrix * local_matrix
         with self.manage_attributes(element):
             with self.manage_body_or_joint_creator():
                 self.load_shape(element, matrix)
-                for child in self.helper.get_children(element):
-                    self.load_element(child, matrix)
+                for child in element.childNodes:
+                    if child.nodeType == child.ELEMENT_NODE:
+                        self.load_element(child, matrix)
 
     def load_shape(self, element, matrix):
-        shape = self.helper.parse_shape(element)
+        shape = pinky.parse_shape(element)
         if shape is not None:
             if self.joint_creator is None:
                 body = self.body
@@ -154,10 +170,12 @@ class DocumentLoader(object):
     @contextmanager
     def manage_attributes(self, element):
         attributes = {}
-        for child in self.helper.get_children(element):
-            if self.helper.get_namespace_and_name(child) == (pinky.SVG_NAMESPACE, 'desc'):
-                desc_attributes = pinky.parse_css_attributes(self.helper.get_text(child))
-                attributes.update(desc_attributes)
+        for child in element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.namespaceURI == pinky.SVG_NAMESPACE and child.localName == 'desc':
+                if child.firstChild.nodeType == child.TEXT_NODE:
+                    desc_attributes = pinky.parse_style(child.firstChild.nodeValue)
+                    attributes.update(desc_attributes)
+                break
         self.attribute_stack.push(attributes)
         yield
         self.attribute_stack.pop()
