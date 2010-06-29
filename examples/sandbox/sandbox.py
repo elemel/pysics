@@ -5,6 +5,7 @@ import pyglet
 from pyglet.gl import *
 import pysics
 import sys
+from xml.dom import minidom
 
 def iter_links(link):
     while link is not None:
@@ -69,81 +70,139 @@ def draw_vertices(vertices, mode):
         for x, y in vertices:
             glVertex2f(x, y)
 
-def load_document(path, world):
-    document = pinky.Document(path)
-    width = float(document.root.attributes['width'])
-    height = float(document.root.attributes['height'])
-    matrix = pinky.Matrix.create_scale(0.01, -0.01) * pinky.Matrix.create_translate(-0.5 * width, -0.5 * height)
-    load_element(document.root, matrix, {}, world, None)
+class AttributeStack(object):
+    def __init__(self):
+        self.stack = [{}]
 
-def parse_float_tuple(float_tuple_str):
-    return tuple(float(s) for s in float_tuple_str.replace(',', ' ').split())
+    def push(self, attributes):
+        self.stack.append(attributes)
 
-def parse_bool(bool_str):
-    if bool_str == 'false':
-        return False
-    elif bool_str == 'true':
-        return True
-    else:
-        raise ValueError('invalid boolean: %s' % bool_str)
+    def pop(self):
+        return self.stack.pop()
 
-def parse_body_attributes(attributes):
-    return dict(linear_velocity=parse_float_tuple(attributes.get('linear-velocity', '0 0')),
-                angular_velocity = float(attributes.get('angular-velocity', '0')),
-                linear_damping = float(attributes.get('linear-damping', '0')),
-                angular_damping = float(attributes.get('angular-damping', '0')),
-                allow_sleep = parse_bool(attributes.get('allow-sleep', 'true')),
-                awake = parse_bool(attributes.get('awake', 'true')),
-                fixed_rotation = parse_bool(attributes.get('fixed-rotation', 'false')),
-                bullet = parse_bool(attributes.get('bullet', 'false')),
-                active = parse_bool(attributes.get('active', 'true')),
-                inertia_scale = float(attributes.get('inertia-scale', '1')))
+    def peek(self):
+        return self.stack[-1]
 
-def parse_fixture_attributes(attributes):
-    return dict(friction=float(attributes.get('friction', '0.2')),
-                restitution=float(attributes.get('restitution', '0')),
-                density=float(attributes.get('density', '1')),
-                sensor=parse_bool(attributes.get('sensor', 'false')),
-                category_bits=int(attributes.get('category-bits', '0001'), 16),
-                mask_bits=int(attributes.get('mask-bits', 'ffff'), 16),
-                group_index=int(attributes.get('group-index', '0')))
+    def get(self, name, default=None):
+        for attributes in reversed(self.stack):
+            if name in attributes:
+                return attributes[name]
+        return default
 
-BODY_TYPES = {'static-body': pysics.STATIC_BODY,
-              'kinematic-body': pysics.KINEMATIC_BODY,
-              'dynamic-body': pysics.DYNAMIC_BODY}
+class DocumentLoader(object):
+    body_types = {'static-body': pysics.STATIC_BODY,
+                  'kinematic-body': pysics.KINEMATIC_BODY,
+                  'dynamic-body': pysics.DYNAMIC_BODY}
 
-def load_element(element, matrix, attributes, world, body):
-    matrix = matrix * element.matrix
-    local_attributes = dict(element.attributes)
-    for attribute in ('style', 'desc'):
-        local_attributes.update(pinky.parse_css_attributes(local_attributes.pop(attribute, '')))
-    attributes = dict(attributes)
-    attributes.update(local_attributes)
-    type_ = local_attributes.get('type')
-    if type_ in BODY_TYPES or type_ is None and body is None and element.shape is not None:
-        if type_ is None:
-            body_type = pysics.STATIC_BODY
-        else:
-            body_type = BODY_TYPES[type_]
-        body_attributes = parse_body_attributes(attributes)
-        body = world.create_body(type=body_type, **body_attributes)
-    if body is not None and element.shape is not None:
-        transformed_shape = element.shape.transform(matrix)
-        fixture_attributes = parse_fixture_attributes(attributes)
-        if isinstance(transformed_shape, pinky.Circle):
-            body.create_circle_fixture(position=(transformed_shape.cx,
-                                                 transformed_shape.cy),
-                                       radius=transformed_shape.r,
-                                       **fixture_attributes)
-        elif isinstance(transformed_shape, pinky.Polygon):
-            if transformed_shape.area >= 0.0:
-                vertices = transformed_shape.points
+    def __init__(self, path, world):
+        self.path = path
+        self.world = world
+        self.helper = pinky.DOMHelper()
+        self.attribute_stack = AttributeStack()
+        self.body = None
+        self.joint_creator = None
+        self.joint_creators = []
+
+    def load(self):
+        root = self.helper.load(self.path)
+        width = float(self.helper.get_attribute(root, pinky.SVG_NAMESPACE, 'width'))
+        height = float(self.helper.get_attribute(root, pinky.SVG_NAMESPACE, 'height'))
+        matrix = pinky.Matrix.create_scale(0.01, -0.01) * pinky.Matrix.create_translate(-0.5 * width, -0.5 * height)
+        self.load_element(root, matrix)
+
+    def load_element(self, element, matrix):
+        local_matrix = pinky.Matrix.from_string(self.helper.get_attribute(element, pinky.SVG_NAMESPACE, 'transform', ''))
+        matrix = matrix * local_matrix
+        with self.manage_attributes(element):
+            with self.manage_body_or_joint_creator():
+                self.load_shape(element, matrix)
+                for child in self.helper.get_children(element):
+                    self.load_element(child, matrix)
+
+    def load_shape(self, element, matrix):
+        shape = self.helper.parse_shape(element)
+        if shape is not None:
+            if self.joint_creator is None:
+                body = self.body
+                if body is None:
+                    body = self.world.create_static_body()
+                self.load_body_shape(matrix, body, shape)
             else:
-                vertices = list(reversed(transformed_shape.points))
+                pass
+
+    def load_body_shape(self, matrix, body, shape):
+        shape = shape.transform(matrix)
+        fixture_attributes = self.parse_fixture_attributes()
+        if isinstance(shape, pinky.Circle):
+            body.create_circle_fixture(position=(shape.cx, shape.cy),
+                                       radius=shape.r,
+                                       **fixture_attributes)
+        elif isinstance(shape, pinky.Polygon):
+            if shape.area >= 0.0:
+                vertices = shape.points
+            else:
+                vertices = list(reversed(shape.points))
             body.create_polygon_fixture(vertices=vertices,
                                         **fixture_attributes)
-    for child in element.children:
-        load_element(child, matrix, attributes, world, body)
+
+    @contextmanager
+    def manage_attributes(self, element):
+        attributes = {}
+        for child in self.helper.get_children(element):
+            if self.helper.get_namespace_and_name(child) == (pinky.SVG_NAMESPACE, 'desc'):
+                desc_attributes = pinky.parse_css_attributes(self.helper.get_text(child))
+                attributes.update(desc_attributes)
+        self.attribute_stack.push(attributes)
+        yield
+        self.attribute_stack.pop()
+
+    @contextmanager
+    def manage_body_or_joint_creator(self):
+        type_ = self.attribute_stack.peek().get('type')
+        if type_ in self.body_types:
+            if self.body is not None or self.joint_creator is not None:
+                raise Exception('nested bodies or joints')
+            body_type = self.body_types[type_]
+            body_attributes = self.parse_body_attributes()
+            self.body = self.world.create_body(body_type, **body_attributes)
+            yield
+            self.body = None
+        else:
+            yield
+
+    def parse_body_attributes(self):
+        get = self.attribute_stack.get
+        return dict(linear_velocity=self.parse_float_tuple(get('linear-velocity', '0 0')),
+                    angular_velocity = float(get('angular-velocity', '0')),
+                    linear_damping = float(get('linear-damping', '0')),
+                    angular_damping = float(get('angular-damping', '0')),
+                    allow_sleep = self.parse_bool(get('allow-sleep', 'true')),
+                    awake = self.parse_bool(get('awake', 'true')),
+                    fixed_rotation = self.parse_bool(get('fixed-rotation', 'false')),
+                    bullet = self.parse_bool(get('bullet', 'false')),
+                    active = self.parse_bool(get('active', 'true')),
+                    inertia_scale = float(get('inertia-scale', '1')))
+
+    def parse_fixture_attributes(self):
+        get = self.attribute_stack.get
+        return dict(friction=float(get('friction', '0.2')),
+                    restitution=float(get('restitution', '0')),
+                    density=float(get('density', '1')),
+                    sensor=self.parse_bool(get('sensor', 'false')),
+                    category_bits=int(get('category-bits', '0001'), 16),
+                    mask_bits=int(get('mask-bits', 'ffff'), 16),
+                    group_index=int(get('group-index', '0')))
+
+    def parse_float_tuple(self, arg):
+        return tuple(float(s) for s in arg.replace(',', ' ').split())
+
+    def parse_bool(self, arg):
+        if arg == 'false':
+            return False
+        elif arg == 'true':
+            return True
+        else:
+            raise ValueError('invalid boolean: %s' % bool_str)
 
 class MyWindow(pyglet.window.Window):
     def __init__(self, paths, **kwargs):
@@ -153,7 +212,7 @@ class MyWindow(pyglet.window.Window):
         self.world_dt = 1.0 / 60.0
         self.world = pysics.World((0.0, -10.0), True)
         for path in paths:
-            load_document(path, self.world)
+            DocumentLoader(path, self.world).load()
         self.clock_display = pyglet.clock.ClockDisplay()
         pyglet.clock.schedule_interval(self.step, 0.1 * self.world_dt)
 
