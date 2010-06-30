@@ -59,8 +59,19 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="fill:#000080;fill-opacity:1;stroke:#c8b7b7;stroke-width:0.99999994;stroke-opacity:1"
+       id="rect2941"
+       width="119.55305"
+       height="236.20122"
+       x="250.19913"
+       y="390.82288"
+       transform="matrix(0.93985319,-0.34157866,0.34177323,0.93978245,0,0)">
+      <desc
+         id="desc2943">type: dynamic-body;</desc>
+    </rect>
     <path
-       transform="matrix(0.61363638,0,0,-0.61363638,206.69101,345.21797)"
+       transform="matrix(0.61363638,0,0,-0.61363638,144.50172,600.88505)"
        d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
        sodipodi:ry="101.34551"
        sodipodi:rx="101.34551"
@@ -81,7 +92,7 @@
        sodipodi:rx="101.34551"
        sodipodi:ry="101.34551"
        d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
-       transform="matrix(0.94318182,0,0,-0.94318182,176.74802,577.34395)">
+       transform="matrix(0.94318182,0,0,-0.94318182,215.90424,519.76127)">
       <desc
          id="desc2905">type: dynamic-body;
 </desc>
@@ -103,27 +114,39 @@
        sodipodi:rx="101.34551"
        sodipodi:ry="101.34551"
        d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
-       transform="matrix(0.61363638,0,0,-0.61363638,-14.426464,423.53041)">
+       transform="matrix(0.61363638,0,0,-0.61363638,96.132273,474.20316)">
       <desc
          id="desc2939">type: dynamic-body;</desc>
     </path>
-    <rect
-       style="fill:#ff0000;fill-opacity:1;stroke:#c8b7b7;stroke-opacity:1"
-       id="rect2941"
-       width="96.738892"
-       height="191.17448"
-       x="224.96223"
-       y="453.63574"
-       transform="matrix(0.93981783,-0.34167593,0.34167593,0.93981783,0,0)">
-      <desc
-         id="desc2943">type: dynamic-body;</desc>
-    </rect>
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 297.12661,271.91209 L 513.63747,218.93603"
-       id="path2945">
+       sodipodi:type="arc"
+       style="fill:#000000;fill-opacity:1;stroke:#c8b7b7;stroke-width:7.33333158000000029;stroke-opacity:1"
+       id="path2949"
+       sodipodi:cx="506.72754"
+       sodipodi:cy="246.58017"
+       sodipodi:rx="101.34551"
+       sodipodi:ry="101.34551"
+       d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
+       transform="matrix(0.13636367,0,0,-0.13636367,386.34895,483.19906)">
       <desc
-         id="desc2947">type: distance-joint;</desc>
+         id="desc2951">type: revolute-joint;
+body-a: url(#rect2941);
+body-b: url(#path2889);</desc>
+    </path>
+    <path
+       transform="matrix(0.1136364,0,0,-0.1136364,349.49603,350.91308)"
+       d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
+       sodipodi:ry="101.34551"
+       sodipodi:rx="101.34551"
+       sodipodi:cy="246.58017"
+       sodipodi:cx="506.72754"
+       id="path2953"
+       style="fill:#000000;fill-opacity:1;stroke:#c8b7b7;stroke-width:8.79999733000000006;stroke-opacity:1"
+       sodipodi:type="arc">
+      <desc
+         id="desc2955">type: revolute-joint;
+body-a: url(#rect2941);
+body-b: url(#path2937);</desc>
     </path>
   </g>
 </svg>

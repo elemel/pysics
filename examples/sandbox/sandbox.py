@@ -90,8 +90,39 @@ class AttributeStack(object):
         return default
 
 class JointCreator(object):
+    def __init__(self, world, bodies):
+        self.world = world
+        self.bodies = bodies
+        self.shapes = []
+
+    def parse_id_url(self, arg):
+        if arg.startswith('url(#') and arg.endswith(')'):
+            return arg[5:-1]
+        else:
+            raise ValueError('invalid ID URL: ' + arg)
+
+    def add_shape(self, matrix, shape):
+        if isinstance(shape, pinky.Path):
+            for basic_shape in shape.basic_shapes:
+                self.shapes.append(basic_shape.transform(matrix))
+        else:
+            self.shapes.append(shape.transform(matrix))
+
+class RevoluteJointCreator(JointCreator):
+    def __init__(self, world, bodies, attribute_stack):
+        super(RevoluteJointCreator, self).__init__(world, bodies)
+        self.body_a_id = self.parse_id_url(attribute_stack.get('body-a'))
+        self.body_b_id = self.parse_id_url(attribute_stack.get('body-b'))
+
     def create(self):
-        pass
+        if len(self.shapes) != 1 or not isinstance(self.shapes[0], pinky.Circle):
+            raise TypeError('invalid shapes for revolute joint')
+        body_a = self.bodies[self.body_a_id]
+        body_b = self.bodies[self.body_b_id]
+        anchor = self.shapes[0].cx, self.shapes[0].cy
+        self.world.create_revolute_joint(body_a=body_a,
+                                         body_b=body_b,
+                                         anchor=anchor)
 
 class DocumentLoader(object):
     body_types = {
@@ -101,15 +132,15 @@ class DocumentLoader(object):
     }
 
     joint_types = {
-        'revolute-joint': pysics.REVOLUTE_JOINT,
-        'prismatic-joint': pysics.PRISMATIC_JOINT,
-        'distance-joint': pysics.DISTANCE_JOINT,
-        'pulley-joint': pysics.PULLEY_JOINT,
-        'mouse-joint': pysics.MOUSE_JOINT,
-        'gear-joint': pysics.GEAR_JOINT,
-        'line-joint': pysics.LINE_JOINT,
-        'weld-joint': pysics.WELD_JOINT,
-        'friction-joint': pysics.FRICTION_JOINT,
+        'revolute-joint': RevoluteJointCreator,
+        'prismatic-joint': None,
+        'distance-joint': None,
+        'pulley-joint': None,
+        'mouse-joint': None,
+        'gear-joint': None,
+        'line-joint': None,
+        'weld-joint': None,
+        'friction-joint': None,
     }
 
     def __init__(self, path, world):
@@ -117,6 +148,7 @@ class DocumentLoader(object):
         self.world = world
         self.attribute_stack = AttributeStack()
         self.body = None
+        self.bodies = {}
         self.joint_creator = None
         self.joint_creators = []
 
@@ -150,7 +182,7 @@ class DocumentLoader(object):
                     body = self.world.create_static_body()
                 self.load_body_shape(matrix, body, shape)
             else:
-                pass
+                self.joint_creator.add_shape(matrix, shape)
 
     def load_body_shape(self, matrix, body, shape):
         shape = shape.transform(matrix)
@@ -170,6 +202,10 @@ class DocumentLoader(object):
     @contextmanager
     def manage_attributes(self, element):
         attributes = {}
+        attribute_nodes = element.attributes
+        for i in xrange(attribute_nodes.length):
+            attribute_node = attribute_nodes.item(i)
+            attributes[attribute_node.localName] = attribute_node.nodeValue
         for child in element.childNodes:
             if child.nodeType == child.ELEMENT_NODE and child.namespaceURI == pinky.SVG_NAMESPACE and child.localName == 'desc':
                 if child.firstChild.nodeType == child.TEXT_NODE:
@@ -185,12 +221,25 @@ class DocumentLoader(object):
         type_ = self.attribute_stack.peek().get('type')
         if type_ in self.body_types:
             if self.body is not None or self.joint_creator is not None:
-                raise Exception('nested bodies or joints')
+                raise Exception('body nested within body or joint')
             body_type = self.body_types[type_]
             body_attributes = self.parse_body_attributes()
             self.body = self.world.create_body(body_type, **body_attributes)
+            id_ = self.attribute_stack.peek().get('id')
+            if id_ is not None:
+                self.bodies[id_] = self.body
             yield
             self.body = None
+        elif type_ in self.joint_types:
+            if self.body is not None or self.joint_creator is not None:
+                raise Exception('joint nested within body or joint')
+            joint_creator_factory = self.joint_types[type_]
+            self.joint_creator = joint_creator_factory(self.world,
+                                                       self.bodies,
+                                                       self.attribute_stack)
+            yield
+            self.joint_creators.append(self.joint_creator)
+            self.joint_creator = None
         else:
             yield
 
