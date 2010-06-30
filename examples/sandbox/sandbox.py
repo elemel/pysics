@@ -70,24 +70,19 @@ def draw_vertices(vertices, mode):
         for x, y in vertices:
             glVertex2f(x, y)
 
-class AttributeStack(object):
-    def __init__(self):
-        self.stack = [{}]
-
-    def push(self, attributes):
-        self.stack.append(attributes)
-
-    def pop(self):
-        return self.stack.pop()
-
-    def peek(self):
-        return self.stack[-1]
+class AttributeChain(object):
+    def __init__(self, attributes, next=None):
+        self.attributes = attributes
+        self.next = next
 
     def get(self, name, default=None):
-        for attributes in reversed(self.stack):
-            if name in attributes:
-                return attributes[name]
-        return default
+        chain = self
+        while True:
+            if name in chain.attributes:
+                return chain.attributes[name]
+            chain = chain.next
+            if chain is None:
+                return default
 
 class JointCreator(object):
     def __init__(self, world, bodies):
@@ -109,10 +104,10 @@ class JointCreator(object):
             self.shapes.append(shape.transform(matrix))
 
 class RevoluteJointCreator(JointCreator):
-    def __init__(self, world, bodies, attribute_stack):
+    def __init__(self, world, bodies, attribute_chain):
         super(RevoluteJointCreator, self).__init__(world, bodies)
-        self.body_a_id = self.parse_id_url(attribute_stack.get('body-a'))
-        self.body_b_id = self.parse_id_url(attribute_stack.get('body-b'))
+        self.body_a_id = self.parse_id_url(attribute_chain.get('body-a'))
+        self.body_b_id = self.parse_id_url(attribute_chain.get('body-b'))
 
     def create(self):
         if len(self.shapes) != 1 or not isinstance(self.shapes[0], pinky.Circle):
@@ -146,7 +141,6 @@ class DocumentLoader(object):
     def __init__(self, path, world):
         self.path = path
         self.world = world
-        self.attribute_stack = AttributeStack()
         self.body = None
         self.bodies = {}
         self.joint_creator = None
@@ -159,34 +153,35 @@ class DocumentLoader(object):
         height = float(root.getAttribute('height'))
         matrix = (pinky.Matrix.create_scale(0.01, -0.01) *
                   pinky.Matrix.create_translate(-0.5 * width, -0.5 * height))
-        self.load_element(root, matrix)
+        self.load_element(root, matrix, AttributeChain({}))
         for joint_creator in self.joint_creators:
             joint_creator.create()
 
-    def load_element(self, element, matrix):
+    def load_element(self, element, matrix, attribute_chain):
         local_matrix = pinky.Matrix.from_string(element.getAttribute('transform'))
         matrix = matrix * local_matrix
-        with self.manage_attributes(element):
-            with self.manage_body_or_joint_creator():
-                self.load_shape(element, matrix)
-                for child in element.childNodes:
-                    if child.nodeType == child.ELEMENT_NODE:
-                        self.load_element(child, matrix)
+        attributes = self.get_attributes(element)
+        attribute_chain = AttributeChain(attributes, attribute_chain)
+        with self.manage_body_or_joint_creator(attribute_chain):
+            self.load_shape(element, matrix, attribute_chain)
+            for child in element.childNodes:
+                if child.nodeType == child.ELEMENT_NODE:
+                    self.load_element(child, matrix, attribute_chain)
 
-    def load_shape(self, element, matrix):
+    def load_shape(self, element, matrix, attribute_chain):
         shape = pinky.parse_shape(element)
         if shape is not None:
             if self.joint_creator is None:
                 body = self.body
                 if body is None:
                     body = self.world.create_static_body()
-                self.load_body_shape(matrix, body, shape)
+                self.load_body_shape(matrix, attribute_chain, body, shape)
             else:
                 self.joint_creator.add_shape(matrix, shape)
 
-    def load_body_shape(self, matrix, body, shape):
+    def load_body_shape(self, matrix, attribute_chain, body, shape):
         shape = shape.transform(matrix)
-        fixture_attributes = self.parse_fixture_attributes()
+        fixture_attributes = self.parse_fixture_attributes(attribute_chain)
         if isinstance(shape, pinky.Circle):
             body.create_circle_fixture(position=(shape.cx, shape.cy),
                                        radius=shape.r,
@@ -199,8 +194,7 @@ class DocumentLoader(object):
             body.create_polygon_fixture(vertices=vertices,
                                         **fixture_attributes)
 
-    @contextmanager
-    def manage_attributes(self, element):
+    def get_attributes(self, element):
         attributes = {}
         attribute_nodes = element.attributes
         for i in xrange(attribute_nodes.length):
@@ -212,20 +206,18 @@ class DocumentLoader(object):
                     desc_attributes = pinky.parse_style(child.firstChild.nodeValue)
                     attributes.update(desc_attributes)
                 break
-        self.attribute_stack.push(attributes)
-        yield
-        self.attribute_stack.pop()
+        return attributes
 
     @contextmanager
-    def manage_body_or_joint_creator(self):
-        type_ = self.attribute_stack.peek().get('type')
+    def manage_body_or_joint_creator(self, attribute_chain):
+        type_ = attribute_chain.attributes.get('type')
         if type_ in self.body_types:
             if self.body is not None or self.joint_creator is not None:
                 raise Exception('body nested within body or joint')
             body_type = self.body_types[type_]
-            body_attributes = self.parse_body_attributes()
+            body_attributes = self.parse_body_attributes(attribute_chain)
             self.body = self.world.create_body(body_type, **body_attributes)
-            id_ = self.attribute_stack.peek().get('id')
+            id_ = attribute_chain.attributes.get('id')
             if id_ is not None:
                 self.bodies[id_] = self.body
             yield
@@ -236,15 +228,15 @@ class DocumentLoader(object):
             joint_creator_factory = self.joint_types[type_]
             self.joint_creator = joint_creator_factory(self.world,
                                                        self.bodies,
-                                                       self.attribute_stack)
+                                                       attribute_chain)
             yield
             self.joint_creators.append(self.joint_creator)
             self.joint_creator = None
         else:
             yield
 
-    def parse_body_attributes(self):
-        get = self.attribute_stack.get
+    def parse_body_attributes(self, attribute_chain):
+        get = attribute_chain.get
         return dict(linear_velocity=self.parse_float_tuple(get('linear-velocity', '0 0')),
                     angular_velocity = float(get('angular-velocity', '0')),
                     linear_damping = float(get('linear-damping', '0')),
@@ -256,8 +248,8 @@ class DocumentLoader(object):
                     active = self.parse_bool(get('active', 'true')),
                     inertia_scale = float(get('inertia-scale', '1')))
 
-    def parse_fixture_attributes(self):
-        get = self.attribute_stack.get
+    def parse_fixture_attributes(self, attribute_chain):
+        get = attribute_chain.get
         return dict(friction=float(get('friction', '0.2')),
                     restitution=float(get('restitution', '0')),
                     density=float(get('density', '1')),
