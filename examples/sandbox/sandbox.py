@@ -84,6 +84,64 @@ class AttributeChain(object):
             if chain is None:
                 return default
 
+class BodyCreator(object):
+    def __init__(self, world, body_type, attribute_chain, bodies):
+        body_attributes = self.parse_body_attributes(attribute_chain)
+        self.body = world.create_body(body_type, **body_attributes)
+        id_ = attribute_chain.attributes.get('id')
+        if id_ is not None:
+            bodies[id_] = self.body
+
+    def parse_body_attributes(self, attribute_chain):
+        get = attribute_chain.get
+        return dict(linear_velocity=self.parse_float_tuple(get('linear-velocity', '0 0')),
+                    angular_velocity = float(get('angular-velocity', '0')),
+                    linear_damping = float(get('linear-damping', '0')),
+                    angular_damping = float(get('angular-damping', '0')),
+                    allow_sleep = self.parse_bool(get('allow-sleep', 'true')),
+                    awake = self.parse_bool(get('awake', 'true')),
+                    fixed_rotation = self.parse_bool(get('fixed-rotation', 'false')),
+                    bullet = self.parse_bool(get('bullet', 'false')),
+                    active = self.parse_bool(get('active', 'true')),
+                    inertia_scale = float(get('inertia-scale', '1')))
+
+    def parse_fixture_attributes(self, attribute_chain):
+        get = attribute_chain.get
+        return dict(friction=float(get('friction', '0.2')),
+                    restitution=float(get('restitution', '0')),
+                    density=float(get('density', '1')),
+                    sensor=self.parse_bool(get('sensor', 'false')),
+                    category_bits=int(get('category-bits', '0001'), 16),
+                    mask_bits=int(get('mask-bits', 'ffff'), 16),
+                    group_index=int(get('group-index', '0')))
+
+    def add_shape(self, matrix, attribute_chain, shape):
+        shape = shape.transform(matrix)
+        fixture_attributes = self.parse_fixture_attributes(attribute_chain)
+        if isinstance(shape, pinky.Circle):
+            self.body.create_circle_fixture(position=(shape.cx, shape.cy),
+                                            radius=shape.r,
+                                            **fixture_attributes)
+        elif isinstance(shape, pinky.Polygon):
+            if shape.area >= 0.0:
+                vertices = shape.points
+            else:
+                vertices = list(reversed(shape.points))
+            self.body.create_polygon_fixture(vertices=vertices,
+                                             **fixture_attributes)
+
+    def parse_float_tuple(self, arg):
+        return tuple(float(s) for s in arg.replace(',', ' ').split())
+
+    def parse_bool(self, arg):
+        if arg == 'false':
+            return False
+        elif arg == 'true':
+            return True
+        else:
+            raise ValueError('invalid boolean: %s' % bool_str)
+
+
 class JointCreator(object):
     def __init__(self, world, bodies):
         self.world = world
@@ -141,7 +199,7 @@ class DocumentLoader(object):
     def __init__(self, path, world):
         self.path = path
         self.world = world
-        self.body = None
+        self.body_creator = None
         self.bodies = {}
         self.joint_creator = None
         self.joint_creators = []
@@ -172,27 +230,13 @@ class DocumentLoader(object):
         shape = pinky.parse_shape(element)
         if shape is not None:
             if self.joint_creator is None:
-                body = self.body
-                if body is None:
-                    body = self.world.create_static_body()
-                self.load_body_shape(matrix, attribute_chain, body, shape)
+                body_creator = self.body_creator
+                if body_creator is None:
+                    body_creator = BodyCreator(self.world, pysics.STATIC_BODY,
+                                               attribute_chain, self.bodies)
+                body_creator.add_shape(matrix, attribute_chain, shape)
             else:
                 self.joint_creator.add_shape(matrix, shape)
-
-    def load_body_shape(self, matrix, attribute_chain, body, shape):
-        shape = shape.transform(matrix)
-        fixture_attributes = self.parse_fixture_attributes(attribute_chain)
-        if isinstance(shape, pinky.Circle):
-            body.create_circle_fixture(position=(shape.cx, shape.cy),
-                                       radius=shape.r,
-                                       **fixture_attributes)
-        elif isinstance(shape, pinky.Polygon):
-            if shape.area >= 0.0:
-                vertices = shape.points
-            else:
-                vertices = list(reversed(shape.points))
-            body.create_polygon_fixture(vertices=vertices,
-                                        **fixture_attributes)
 
     def get_attributes(self, element):
         attributes = {}
@@ -212,18 +256,15 @@ class DocumentLoader(object):
     def manage_body_or_joint_creator(self, attribute_chain):
         type_ = attribute_chain.attributes.get('type')
         if type_ in self.body_types:
-            if self.body is not None or self.joint_creator is not None:
+            if self.body_creator is not None or self.joint_creator is not None:
                 raise Exception('body nested within body or joint')
             body_type = self.body_types[type_]
-            body_attributes = self.parse_body_attributes(attribute_chain)
-            self.body = self.world.create_body(body_type, **body_attributes)
-            id_ = attribute_chain.attributes.get('id')
-            if id_ is not None:
-                self.bodies[id_] = self.body
+            self.body_creator = BodyCreator(self.world, body_type,
+                                            attribute_chain, self.bodies)
             yield
-            self.body = None
+            self.body_creator = None
         elif type_ in self.joint_types:
-            if self.body is not None or self.joint_creator is not None:
+            if self.body_creator is not None or self.joint_creator is not None:
                 raise Exception('joint nested within body or joint')
             joint_creator_factory = self.joint_types[type_]
             self.joint_creator = joint_creator_factory(self.world,
@@ -234,40 +275,6 @@ class DocumentLoader(object):
             self.joint_creator = None
         else:
             yield
-
-    def parse_body_attributes(self, attribute_chain):
-        get = attribute_chain.get
-        return dict(linear_velocity=self.parse_float_tuple(get('linear-velocity', '0 0')),
-                    angular_velocity = float(get('angular-velocity', '0')),
-                    linear_damping = float(get('linear-damping', '0')),
-                    angular_damping = float(get('angular-damping', '0')),
-                    allow_sleep = self.parse_bool(get('allow-sleep', 'true')),
-                    awake = self.parse_bool(get('awake', 'true')),
-                    fixed_rotation = self.parse_bool(get('fixed-rotation', 'false')),
-                    bullet = self.parse_bool(get('bullet', 'false')),
-                    active = self.parse_bool(get('active', 'true')),
-                    inertia_scale = float(get('inertia-scale', '1')))
-
-    def parse_fixture_attributes(self, attribute_chain):
-        get = attribute_chain.get
-        return dict(friction=float(get('friction', '0.2')),
-                    restitution=float(get('restitution', '0')),
-                    density=float(get('density', '1')),
-                    sensor=self.parse_bool(get('sensor', 'false')),
-                    category_bits=int(get('category-bits', '0001'), 16),
-                    mask_bits=int(get('mask-bits', 'ffff'), 16),
-                    group_index=int(get('group-index', '0')))
-
-    def parse_float_tuple(self, arg):
-        return tuple(float(s) for s in arg.replace(',', ' ').split())
-
-    def parse_bool(self, arg):
-        if arg == 'false':
-            return False
-        elif arg == 'true':
-            return True
-        else:
-            raise ValueError('invalid boolean: %s' % bool_str)
 
 class MyWindow(pyglet.window.Window):
     def __init__(self, paths, **kwargs):
