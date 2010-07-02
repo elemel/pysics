@@ -64,14 +64,14 @@
        id="rect2941"
        width="119.55305"
        height="236.20122"
-       x="250.19913"
-       y="390.82288"
-       transform="matrix(0.93985319,-0.34157866,0.34177323,0.93978245,0,0)">
+       x="-204.71587"
+       y="450.04745"
+       transform="matrix(0.41005161,-0.91206232,0.9121472,0.40986277,0,0)">
       <desc
          id="desc2943">type: dynamic-body;</desc>
     </rect>
     <path
-       transform="matrix(0.61363638,0,0,-0.61363638,144.50172,600.88505)"
+       transform="matrix(0.42766119,-0.44006307,-0.44006307,-0.42766119,399.109,754.33127)"
        d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
        sodipodi:ry="101.34551"
        sodipodi:rx="101.34551"
@@ -114,39 +114,42 @@
        sodipodi:rx="101.34551"
        sodipodi:ry="101.34551"
        d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
-       transform="matrix(0.61363638,0,0,-0.61363638,96.132273,474.20316)">
+       transform="matrix(0.42766119,-0.44006307,-0.44006307,-0.42766119,274.55029,700.7306)">
       <desc
          id="desc2939">type: dynamic-body;</desc>
     </path>
     <path
        sodipodi:type="arc"
-       style="fill:#000000;fill-opacity:1;stroke:#c8b7b7;stroke-width:7.33333158000000029;stroke-opacity:1"
+       style="fill:#000000;fill-opacity:1;stroke:#c8b7b7;stroke-width:7.33333158;stroke-opacity:1"
        id="path2949"
        sodipodi:cx="506.72754"
        sodipodi:cy="246.58017"
        sodipodi:rx="101.34551"
        sodipodi:ry="101.34551"
        d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
-       transform="matrix(0.13636367,0,0,-0.13636367,386.34895,483.19906)">
+       transform="matrix(0.09503584,-0.09779182,-0.09779182,-0.09503584,483.26212,498.87417)">
       <desc
          id="desc2951">type: revolute-joint;
 body-a: url(#rect2941);
 body-b: url(#path2889);</desc>
     </path>
     <path
-       transform="matrix(0.1136364,0,0,-0.1136364,349.49603,350.91308)"
+       transform="matrix(0.07919654,-0.08149319,-0.08149319,-0.07919654,362.7107,433.10889)"
        d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
        sodipodi:ry="101.34551"
        sodipodi:rx="101.34551"
        sodipodi:cy="246.58017"
        sodipodi:cx="506.72754"
        id="path2953"
-       style="fill:#000000;fill-opacity:1;stroke:#c8b7b7;stroke-width:8.79999733000000006;stroke-opacity:1"
+       style="fill:#000000;fill-opacity:1;stroke:#c8b7b7;stroke-width:8.79999733;stroke-opacity:1"
        sodipodi:type="arc">
       <desc
          id="desc2955">type: revolute-joint;
 body-a: url(#rect2941);
-body-b: url(#path2937);</desc>
+body-b: url(#path2937);
+motor-enabled: true;
+motor-speed: 10;
+max-motor-torque: 10;</desc>
     </path>
   </g>
 </svg>

@@ -84,6 +84,24 @@ class AttributeChain(object):
             if chain is None:
                 return default
 
+def parse_bool(arg):
+    if arg == 'false':
+        return False
+    elif arg == 'true':
+        return True
+    else:
+        raise ValueError('invalid boolean: ' + arg)
+
+def parse_float_tuple(arg):
+    return tuple(float(s) for s in arg.replace(',', ' ').split())
+
+def parse_id_url(arg):
+    if arg.startswith('url(#') and arg.endswith(')'):
+        return arg[5:-1]
+    else:
+        raise ValueError('invalid ID URL: ' + arg)
+
+
 class Loader(object):
     def add_shape(self, matrix, attribute_chain, shape):
         raise NotImplementedError()
@@ -101,15 +119,15 @@ class BodyLoader(Loader):
 
     def parse_body_attributes(self, attribute_chain):
         get = attribute_chain.get
-        return dict(linear_velocity=self.parse_float_tuple(get('linear-velocity', '0 0')),
+        return dict(linear_velocity=parse_float_tuple(get('linear-velocity', '0 0')),
                     angular_velocity = float(get('angular-velocity', '0')),
                     linear_damping = float(get('linear-damping', '0')),
                     angular_damping = float(get('angular-damping', '0')),
-                    allow_sleep = self.parse_bool(get('allow-sleep', 'true')),
-                    awake = self.parse_bool(get('awake', 'true')),
-                    fixed_rotation = self.parse_bool(get('fixed-rotation', 'false')),
-                    bullet = self.parse_bool(get('bullet', 'false')),
-                    active = self.parse_bool(get('active', 'true')),
+                    allow_sleep = parse_bool(get('allow-sleep', 'true')),
+                    awake = parse_bool(get('awake', 'true')),
+                    fixed_rotation = parse_bool(get('fixed-rotation', 'false')),
+                    bullet = parse_bool(get('bullet', 'false')),
+                    active = parse_bool(get('active', 'true')),
                     inertia_scale = float(get('inertia-scale', '1')))
 
     def parse_fixture_attributes(self, attribute_chain):
@@ -117,7 +135,7 @@ class BodyLoader(Loader):
         return dict(friction=float(get('friction', '0.2')),
                     restitution=float(get('restitution', '0')),
                     density=float(get('density', '1')),
-                    sensor=self.parse_bool(get('sensor', 'false')),
+                    sensor=parse_bool(get('sensor', 'false')),
                     category_bits=int(get('category-bits', '0001'), 16),
                     mask_bits=int(get('mask-bits', 'ffff'), 16),
                     group_index=int(get('group-index', '0')))
@@ -137,28 +155,11 @@ class BodyLoader(Loader):
             self.body.create_polygon_fixture(vertices=vertices,
                                              **fixture_attributes)
 
-    def parse_float_tuple(self, arg):
-        return tuple(float(s) for s in arg.replace(',', ' ').split())
-
-    def parse_bool(self, arg):
-        if arg == 'false':
-            return False
-        elif arg == 'true':
-            return True
-        else:
-            raise ValueError('invalid boolean: %s' % bool_str)
-
 class JointLoader(Loader):
     def __init__(self, world, bodies):
         self.world = world
         self.bodies = bodies
         self.shapes = []
-
-    def parse_id_url(self, arg):
-        if arg.startswith('url(#') and arg.endswith(')'):
-            return arg[5:-1]
-        else:
-            raise ValueError('invalid ID URL: ' + arg)
 
     def add_shape(self, matrix, attribute_chain, shape):
         if isinstance(shape, pinky.Path):
@@ -170,8 +171,9 @@ class JointLoader(Loader):
 class RevoluteJointLoader(JointLoader):
     def __init__(self, world, bodies, attribute_chain):
         super(RevoluteJointLoader, self).__init__(world, bodies)
-        self.body_a_id = self.parse_id_url(attribute_chain.get('body-a'))
-        self.body_b_id = self.parse_id_url(attribute_chain.get('body-b'))
+        self.body_a_id = parse_id_url(attribute_chain.get('body-a'))
+        self.body_b_id = parse_id_url(attribute_chain.get('body-b'))
+        self.joint_attributes = self.parse_joint_attributes(attribute_chain)
 
     def load(self):
         if len(self.shapes) != 1 or not isinstance(self.shapes[0], pinky.Circle):
@@ -181,10 +183,18 @@ class RevoluteJointLoader(JointLoader):
         anchor = self.shapes[0].cx, self.shapes[0].cy
         self.world.create_revolute_joint(body_a=body_a,
                                          body_b=body_b,
-                                         anchor=anchor)
+                                         anchor=anchor,
+                                         **self.joint_attributes)
 
-    def parse_joint_attributes(self):
-        pass
+    def parse_joint_attributes(self, attribute_chain):
+        get = attribute_chain.get
+        return dict(limit_enabled=parse_bool(get('limit-enabled', 'false')),
+                    lower_angle=float(get('lower-angle', '0')),
+                    upper_angle=float(get('upper-angle', '0')),
+                    motor_enabled=parse_bool(get('motor-enabled', 'false')),
+                    motor_speed=float(get('motor-speed', '0')),
+                    max_motor_torque=float(get('max-motor-torque', '0')),
+                    collide_connected=parse_bool(get('collide-connected', 'false')))
 
 class DocumentLoader(object):
     body_types = {
