@@ -59,31 +59,29 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <path
-       sodipodi:type="arc"
-       style="fill:#ff0000;fill-opacity:1;stroke:#c8b7b7;stroke-width:3.96596146;stroke-opacity:1"
-       id="path2903"
-       sodipodi:cx="506.72754"
-       sodipodi:cy="246.58017"
-       sodipodi:rx="101.34551"
-       sodipodi:ry="101.34551"
-       d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
-       transform="matrix(0.25214567,0,0,-0.25214567,395.05946,166.43812)" />
+    <rect
+       transform="matrix(-9.9138981e-4,0.99999951,-0.99992812,-0.01198984,0,0)"
+       style="fill:#ff0000;fill-opacity:1;stroke:#c8b7b7;stroke-width:1.00003016;stroke-opacity:1"
+       id="rect2882"
+       width="61.889671"
+       height="60.416458"
+       x="31.856916"
+       y="-582.4856" />
     <rect
        style="fill:#000080;fill-opacity:1;stroke:#c8b7b7;stroke-width:1;stroke-opacity:1"
        id="rect2824"
        width="35.831047"
        height="104.23578"
-       x="496.39774"
-       y="-157.71051"
+       x="509.60309"
+       y="-198.02965"
        transform="matrix(0.89207103,0.4518952,-0.4518952,0.89207103,0,0)">
       <desc
          id="desc2836">type: dynamic-body;</desc>
     </rect>
     <rect
        transform="matrix(0.67645261,0.73648616,-0.73648616,0.67645261,0,0)"
-       y="-252.71196"
-       x="440.24738"
+       y="-295.10013"
+       x="438.44653"
        height="104.23578"
        width="35.831047"
        id="rect2826"
@@ -96,8 +94,8 @@
        id="rect2828"
        width="35.831047"
        height="104.23578"
-       x="360.90421"
-       y="-314.53568"
+       x="345.22168"
+       y="-353.95715"
        transform="matrix(0.39564749,0.91840245,-0.91840245,0.39564749,0,0)">
       <desc
          id="desc2840">type: dynamic-body;</desc>
@@ -110,10 +108,11 @@
        sodipodi:cy="102.38853"
        sodipodi:rx="9.7721043"
        sodipodi:ry="9.7721043"
-       d="M 532.57966,102.38853 A 9.7721043,9.7721043 0 1 1 513.03545,102.38853 A 9.7721043,9.7721043 0 1 1 532.57966,102.38853 z">
+       d="M 532.57966,102.38853 A 9.7721043,9.7721043 0 1 1 513.03545,102.38853 A 9.7721043,9.7721043 0 1 1 532.57966,102.38853 z"
+       transform="translate(30,-30)">
       <desc
          id="desc2846">type: revolute-joint;
-body-a: url(#path2903);
+body-a: url(#rect2882);
 body-b: url(#rect2824);</desc>
     </path>
     <path
@@ -125,14 +124,14 @@ body-b: url(#rect2824);</desc>
        id="path2832"
        style="fill:#00ff00;fill-opacity:1;stroke:#c8b7b7;stroke-opacity:1"
        sodipodi:type="arc"
-       transform="translate(-32.57368,70.033413)">
+       transform="translate(-2.57368,40.033413)">
       <desc
          id="desc2844">type: revolute-joint;
 body-a: url(#rect2824);
 body-b: url(#rect2826);</desc>
     </path>
     <path
-       transform="translate(-96.092357,127.03735)"
+       transform="translate(-66.09236,97.03735)"
        sodipodi:type="arc"
        style="fill:#00ff00;fill-opacity:1;stroke:#c8b7b7;stroke-opacity:1"
        id="path2834"
@@ -148,8 +147,8 @@ body-b: url(#rect2828);</desc>
     </path>
     <rect
        transform="matrix(-0.16931175,0.98556255,-0.98556255,-0.16931175,0,0)"
-       y="-409.43634"
-       x="176.62234"
+       y="-433.92395"
+       x="141.97604"
        height="104.23578"
        width="35.831047"
        id="rect2848"
@@ -166,7 +165,7 @@ body-b: url(#rect2828);</desc>
        id="path2852"
        style="fill:#00ff00;fill-opacity:1;stroke:#c8b7b7;stroke-opacity:1"
        sodipodi:type="arc"
-       transform="translate(-164.49709,157.98235)">
+       transform="translate(-134.49709,127.98235)">
       <desc
          id="desc2854">type: revolute-joint;
 body-a: url(#rect2828);
@@ -177,14 +176,14 @@ body-b: url(#rect2848);</desc>
        id="rect2856"
        width="35.831047"
        height="104.23578"
-       x="32.340221"
-       y="-384.98703"
+       x="-9.1972303"
+       y="-393.62662"
        transform="matrix(-0.54829909,0.83628231,-0.83628231,-0.54829909,0,0)">
       <desc
          id="desc2858">type: dynamic-body;</desc>
     </rect>
     <path
-       transform="matrix(0.74581665,0.66615128,-0.66615128,0.74581665,-38.898828,-177.8545)"
+       transform="matrix(0.74581665,0.66615128,-0.66615128,0.74581665,-8.898828,-207.8545)"
        sodipodi:type="arc"
        style="fill:#00ff00;fill-opacity:1;stroke:#c8b7b7;stroke-width:1;stroke-opacity:1"
        id="path2860"
@@ -200,8 +199,8 @@ body-b: url(#rect2856);</desc>
     </path>
     <rect
        transform="matrix(-0.82826209,0.56034089,-0.56034089,-0.82826209,0,0)"
-       y="-303.09372"
-       x="-84.090393"
+       y="-295.05679"
+       x="-125.74848"
        height="104.23578"
        width="35.831047"
        id="rect2864"
@@ -218,11 +217,47 @@ body-b: url(#rect2856);</desc>
        id="path2868"
        style="fill:#00ff00;fill-opacity:1;stroke:#c8b7b7;stroke-width:1;stroke-opacity:1"
        sodipodi:type="arc"
-       transform="matrix(0.43144137,0.90214098,-0.90214098,0.43144137,83.203279,-312.17582)">
+       transform="matrix(0.43144137,0.90214098,-0.90214098,0.43144137,113.20328,-342.17582)">
       <desc
          id="desc2870">type: revolute-joint;
 body-a: url(#rect2856);
 body-b: url(#rect2864);</desc>
+    </path>
+    <rect
+       style="fill:#00ff00;fill-opacity:1;stroke:#c8b7b7;stroke-width:1;stroke-opacity:1"
+       id="rect2872"
+       width="45.603168"
+       height="317.59344"
+       x="523.82916"
+       y="343.2569">
+      <desc
+         id="desc2878">type: dynamic-body;</desc>
+    </rect>
+    <rect
+       y="-577.50299"
+       x="598.69897"
+       height="60.416458"
+       width="61.889671"
+       id="rect2874"
+       style="fill:#ff0000;fill-opacity:1;stroke:#c8b7b7;stroke-width:1.00003016;stroke-opacity:1"
+       transform="matrix(-9.9138981e-4,0.99999951,-0.99992812,-0.01198984,0,0)" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#ff00ff;fill-opacity:1;stroke:#c8b7b7;stroke-opacity:1"
+       id="path2876"
+       sodipodi:cx="446.25943"
+       sodipodi:cy="545.39056"
+       sodipodi:rx="14.658156"
+       sodipodi:ry="14.658156"
+       d="M 460.91759,545.39056 A 14.658156,14.658156 0 1 1 431.60127,545.39056 A 14.658156,14.658156 0 1 1 460.91759,545.39056 z"
+       transform="translate(102,90)">
+      <desc
+         id="desc2880">type: revolute-joint;
+body-a: url(#rect2874);
+body-b: url(#rect2872);
+motor-enabled: true;
+motor-speed: 2;
+max-motor-torque: 100;</desc>
     </path>
   </g>
 </svg>
