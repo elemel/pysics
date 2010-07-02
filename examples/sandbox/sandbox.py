@@ -84,8 +84,8 @@ class AttributeChain(object):
             if chain is None:
                 return default
 
-class BodyCreator(object):
-    def __init__(self, world, body_type, attribute_chain, bodies):
+class BodyLoader(object):
+    def __init__(self, world, bodies, body_type, attribute_chain):
         body_attributes = self.parse_body_attributes(attribute_chain)
         self.body = world.create_body(body_type, **body_attributes)
         id_ = attribute_chain.attributes.get('id')
@@ -142,7 +142,7 @@ class BodyCreator(object):
             raise ValueError('invalid boolean: %s' % bool_str)
 
 
-class JointCreator(object):
+class JointLoader(object):
     def __init__(self, world, bodies):
         self.world = world
         self.bodies = bodies
@@ -161,9 +161,9 @@ class JointCreator(object):
         else:
             self.shapes.append(shape.transform(matrix))
 
-class RevoluteJointCreator(JointCreator):
+class RevoluteJointLoader(JointLoader):
     def __init__(self, world, bodies, attribute_chain):
-        super(RevoluteJointCreator, self).__init__(world, bodies)
+        super(RevoluteJointLoader, self).__init__(world, bodies)
         self.body_a_id = self.parse_id_url(attribute_chain.get('body-a'))
         self.body_b_id = self.parse_id_url(attribute_chain.get('body-b'))
 
@@ -177,6 +177,9 @@ class RevoluteJointCreator(JointCreator):
                                          body_b=body_b,
                                          anchor=anchor)
 
+    def parse_joint_attributes(self):
+        pass
+
 class DocumentLoader(object):
     body_types = {
         'static-body': pysics.STATIC_BODY,
@@ -185,7 +188,7 @@ class DocumentLoader(object):
     }
 
     joint_types = {
-        'revolute-joint': RevoluteJointCreator,
+        'revolute-joint': RevoluteJointLoader,
         'prismatic-joint': None,
         'distance-joint': None,
         'pulley-joint': None,
@@ -199,10 +202,10 @@ class DocumentLoader(object):
     def __init__(self, path, world):
         self.path = path
         self.world = world
-        self.body_creator = None
+        self.body_loader = None
         self.bodies = {}
-        self.joint_creator = None
-        self.joint_creators = []
+        self.joint_loader = None
+        self.joint_loaders = []
 
     def load(self):
         document = minidom.parse(self.path)
@@ -212,15 +215,15 @@ class DocumentLoader(object):
         matrix = (pinky.Matrix.create_scale(0.01, -0.01) *
                   pinky.Matrix.create_translate(-0.5 * width, -0.5 * height))
         self.load_element(root, matrix, AttributeChain({}))
-        for joint_creator in self.joint_creators:
-            joint_creator.create()
+        for joint_loader in self.joint_loaders:
+            joint_loader.create()
 
     def load_element(self, element, matrix, attribute_chain):
         local_matrix = pinky.Matrix.from_string(element.getAttribute('transform'))
         matrix = matrix * local_matrix
         attributes = self.get_attributes(element)
         attribute_chain = AttributeChain(attributes, attribute_chain)
-        with self.manage_body_or_joint_creator(attribute_chain):
+        with self.manage_loader(attribute_chain):
             self.load_shape(element, matrix, attribute_chain)
             for child in element.childNodes:
                 if child.nodeType == child.ELEMENT_NODE:
@@ -229,17 +232,18 @@ class DocumentLoader(object):
     def load_shape(self, element, matrix, attribute_chain):
         shape = pinky.parse_shape(element)
         if shape is not None:
-            if self.joint_creator is None:
-                body_creator = self.body_creator
-                if body_creator is None:
-                    body_creator = BodyCreator(self.world, pysics.STATIC_BODY,
-                                               attribute_chain, self.bodies)
-                body_creator.add_shape(matrix, attribute_chain, shape)
+            if self.joint_loader is None:
+                body_loader = self.body_loader
+                if body_loader is None:
+                    body_loader = BodyLoader(self.world, self.bodies,
+                                             pysics.STATIC_BODY,
+                                             attribute_chain)
+                body_loader.add_shape(matrix, attribute_chain, shape)
             else:
-                self.joint_creator.add_shape(matrix, shape)
+                self.joint_loader.add_shape(matrix, shape)
 
     def get_attributes(self, element):
-        attributes = {}
+        attributes = pinky.parse_style(element.getAttribute('style'))
         attribute_nodes = element.attributes
         for i in xrange(attribute_nodes.length):
             attribute_node = attribute_nodes.item(i)
@@ -253,26 +257,26 @@ class DocumentLoader(object):
         return attributes
 
     @contextmanager
-    def manage_body_or_joint_creator(self, attribute_chain):
+    def manage_loader(self, attribute_chain):
         type_ = attribute_chain.attributes.get('type')
         if type_ in self.body_types:
-            if self.body_creator is not None or self.joint_creator is not None:
+            if self.body_loader is not None or self.joint_loader is not None:
                 raise Exception('body nested within body or joint')
             body_type = self.body_types[type_]
-            self.body_creator = BodyCreator(self.world, body_type,
-                                            attribute_chain, self.bodies)
+            self.body_loader = BodyLoader(self.world, self.bodies, body_type,
+                                          attribute_chain)
             yield
-            self.body_creator = None
+            self.body_loader = None
         elif type_ in self.joint_types:
-            if self.body_creator is not None or self.joint_creator is not None:
+            if self.body_loader is not None or self.joint_loader is not None:
                 raise Exception('joint nested within body or joint')
-            joint_creator_factory = self.joint_types[type_]
-            self.joint_creator = joint_creator_factory(self.world,
-                                                       self.bodies,
-                                                       attribute_chain)
+            joint_loader_factory = self.joint_types[type_]
+            self.joint_loader = joint_loader_factory(self.world,
+                                                     self.bodies,
+                                                     attribute_chain)
             yield
-            self.joint_creators.append(self.joint_creator)
-            self.joint_creator = None
+            self.joint_loaders.append(self.joint_loader)
+            self.joint_loader = None
         else:
             yield
 
