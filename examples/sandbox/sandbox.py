@@ -84,7 +84,14 @@ class AttributeChain(object):
             if chain is None:
                 return default
 
-class BodyLoader(object):
+class Loader(object):
+    def add_shape(self, matrix, attribute_chain, shape):
+        raise NotImplementedError()
+
+    def load(self):
+        raise NotImplementedError()
+
+class BodyLoader(Loader):
     def __init__(self, world, bodies, body_type, attribute_chain):
         body_attributes = self.parse_body_attributes(attribute_chain)
         self.body = world.create_body(body_type, **body_attributes)
@@ -141,8 +148,7 @@ class BodyLoader(object):
         else:
             raise ValueError('invalid boolean: %s' % bool_str)
 
-
-class JointLoader(object):
+class JointLoader(Loader):
     def __init__(self, world, bodies):
         self.world = world
         self.bodies = bodies
@@ -154,7 +160,7 @@ class JointLoader(object):
         else:
             raise ValueError('invalid ID URL: ' + arg)
 
-    def add_shape(self, matrix, shape):
+    def add_shape(self, matrix, attribute_chain, shape):
         if isinstance(shape, pinky.Path):
             for basic_shape in shape.basic_shapes:
                 self.shapes.append(basic_shape.transform(matrix))
@@ -167,7 +173,7 @@ class RevoluteJointLoader(JointLoader):
         self.body_a_id = self.parse_id_url(attribute_chain.get('body-a'))
         self.body_b_id = self.parse_id_url(attribute_chain.get('body-b'))
 
-    def create(self):
+    def load(self):
         if len(self.shapes) != 1 or not isinstance(self.shapes[0], pinky.Circle):
             raise TypeError('invalid shapes for revolute joint')
         body_a = self.bodies[self.body_a_id]
@@ -216,7 +222,7 @@ class DocumentLoader(object):
                   pinky.Matrix.create_translate(-0.5 * width, -0.5 * height))
         self.load_element(root, matrix, AttributeChain({}))
         for joint_loader in self.joint_loaders:
-            joint_loader.create()
+            joint_loader.load()
 
     def load_element(self, element, matrix, attribute_chain):
         local_matrix = pinky.Matrix.from_string(element.getAttribute('transform'))
@@ -240,7 +246,7 @@ class DocumentLoader(object):
                                              attribute_chain)
                 body_loader.add_shape(matrix, attribute_chain, shape)
             else:
-                self.joint_loader.add_shape(matrix, shape)
+                self.joint_loader.add_shape(matrix, attribute_chain, shape)
 
     def get_attributes(self, element):
         attributes = pinky.parse_style(element.getAttribute('style'))
