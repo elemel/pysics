@@ -256,8 +256,8 @@ body-b: url(#rect2864);</desc>
 body-a: url(#rect2874);
 body-b: url(#rect2872);
 motor-enabled: true;
-motor-speed: 2;
-max-motor-torque: 100;</desc>
+motor-speed: -2;
+max-motor-torque: 30;</desc>
     </path>
   </g>
 </svg>
