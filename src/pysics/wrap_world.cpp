@@ -139,9 +139,22 @@ namespace pysics {
         return world->CreateJoint(&prismatic_joint_def);
     }
 
-    b2Joint *create_distance_joint(b2World *world)
+    b2Joint *create_distance_joint(b2World *world,
+                                   b2Body *body_a,
+                                   b2Body *body_b,
+                                   b2Vec2 anchor_a,
+                                   b2Vec2 anchor_b,
+                                   float frequency,
+                                   float damping_ratio,
+                                   b2UserData user_data,
+                                   bool collide_connected)
     {
         b2DistanceJointDef distance_joint_def;
+        distance_joint_def.Initialize(body_a, body_b, anchor_a, anchor_b);
+        distance_joint_def.frequencyHz = frequency;
+        distance_joint_def.dampingRatio = damping_ratio;
+        distance_joint_def.userData = user_data;
+        distance_joint_def.collideConnected = collide_connected;
         return world->CreateJoint(&distance_joint_def);
     }
 
@@ -289,7 +302,16 @@ namespace pysics {
                   arg("motor_speed")=0.0f,
                   arg("user_data")=object(),
                   arg("collide_connected")=false))
-            .def("create_distance_joint", &create_distance_joint, return_internal_reference<>())
+            .def("create_distance_joint", &create_distance_joint, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("body_a"),
+                  arg("body_b"),
+                  arg("anchor_a"),
+                  arg("anchor_b"),
+                  arg("frequency")=0.0f,
+                  arg("damping_ratio")=0.0f,
+                  arg("user_data")=object(),
+                  arg("collide_connected")=false))
             .def("create_pulley_joint", &create_pulley_joint, return_internal_reference<>())
             .def("create_mouse_joint", &create_mouse_joint, return_internal_reference<>())
             .def("create_gear_joint", &create_gear_joint, return_internal_reference<>())

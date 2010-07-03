@@ -127,6 +127,26 @@ namespace pysics {
 
     void wrap_distance_joint()
     {
+        class_<b2DistanceJoint, bases<b2Joint> >("DistanceJoint", no_init)
+            .add_property("anchor_a", &b2DistanceJoint::GetAnchorA)
+            .add_property("anchor_b", &b2DistanceJoint::GetAnchorB)
+            .add_property("reaction_force", &b2DistanceJoint::GetReactionForce)
+            .add_property("reaction_torque", &b2DistanceJoint::GetReactionTorque)
+            .add_property("length", &b2DistanceJoint::GetLength, &b2DistanceJoint::SetLength)
+            .add_property("frequency", &b2DistanceJoint::GetFrequency, &b2DistanceJoint::SetFrequency)
+            .add_property("damping_ratio", &b2DistanceJoint::GetDampingRatio, &b2DistanceJoint::SetDampingRatio)
+
+            .def("get_anchor_a", &b2DistanceJoint::GetAnchorA)
+            .def("get_anchor_b", &b2DistanceJoint::GetAnchorB)
+            .def("get_reaction_force", &b2DistanceJoint::GetReactionForce)
+            .def("get_reaction_torque", &b2DistanceJoint::GetReactionTorque)
+            .def("get_length", &b2DistanceJoint::GetLength)
+            .def("set_length", &b2DistanceJoint::SetLength)
+            .def("get_frequency", &b2DistanceJoint::GetFrequency)
+            .def("set_frequency", &b2DistanceJoint::SetFrequency)
+            .def("get_damping_ratio", &b2DistanceJoint::GetDampingRatio)
+            .def("set_damping_ratio", &b2DistanceJoint::SetDampingRatio)
+        ;
     }
 
     void wrap_pulley_joint()
