@@ -1,4 +1,5 @@
 #include "wrap_body.hpp"
+#include "wrap_debug_draw.hpp"
 #include "wrap_exception.hpp"
 #include "wrap_fixture.hpp"
 #include "wrap_joint.hpp"

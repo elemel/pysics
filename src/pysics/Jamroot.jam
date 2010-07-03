@@ -17,6 +17,7 @@ project : requirements <library>/boost/python//boost_python ;
 python-extension pysics : pysics.cpp
 
     wrap_body.cpp
+    wrap_debug_draw.cpp
     wrap_exception.cpp
     wrap_fixture.cpp
     wrap_joint.cpp

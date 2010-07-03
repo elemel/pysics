@@ -3,7 +3,6 @@
 
 namespace pysics {
     void wrap_world();
-    void wrap_debug_draw();
 }
 
 #endif
