@@ -29,6 +29,7 @@ BOOST_PYTHON_MODULE(pysics)
     wrap_loop_shape();
 
     wrap_world();
+    wrap_debug_draw();
     wrap_body();
     wrap_fixture();
 
