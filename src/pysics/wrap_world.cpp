@@ -18,180 +18,182 @@
 using namespace boost::python;
 
 namespace pysics {
-    b2Body *create_body_1(b2World *world,
-                          b2BodyType type,
-                          b2Vec2 position,
-                          float32 angle,
-                          b2Vec2 linear_velocity,
-                          float32 angular_velocity,
-                          float32 linear_damping,
-                          float32 angular_damping,
-                          bool allow_sleep,
-                          bool awake,
-                          bool fixed_rotation,
-                          bool bullet,
-                          bool active,
-                          b2UserData user_data,
-                          float32 inertia_scale)
-    {
-        b2BodyDef body_def;
-        body_def.type = type;
-        body_def.position = position;
-        body_def.angle = angle;
-        body_def.linearVelocity = linear_velocity;
-        body_def.angularVelocity = angular_velocity;
-        body_def.linearDamping = linear_damping;
-        body_def.angularDamping = angular_damping;
-        body_def.allowSleep = allow_sleep;
-        body_def.awake = awake;
-        body_def.fixedRotation = fixed_rotation;
-        body_def.bullet = bullet;
-        body_def.active = active;
-        body_def.userData = user_data;
-        body_def.inertiaScale = inertia_scale;
-        return world->CreateBody(&body_def);
-    }
-
-    template <b2BodyType T>
-    b2Body *create_body_2(b2World *world,
-                          b2Vec2 position,
-                          float32 angle,
-                          b2Vec2 linear_velocity,
-                          float32 angular_velocity,
-                          float32 linear_damping,
-                          float32 angular_damping,
-                          bool allow_sleep,
-                          bool awake,
-                          bool fixed_rotation,
-                          bool bullet,
-                          bool active,
-                          b2UserData user_data,
-                          float32 inertia_scale)
-    {
-        b2BodyDef body_def;
-        body_def.type = T;
-        body_def.position = position;
-        body_def.angle = angle;
-        body_def.linearVelocity = linear_velocity;
-        body_def.angularVelocity = angular_velocity;
-        body_def.linearDamping = linear_damping;
-        body_def.angularDamping = angular_damping;
-        body_def.allowSleep = allow_sleep;
-        body_def.awake = awake;
-        body_def.fixedRotation = fixed_rotation;
-        body_def.bullet = bullet;
-        body_def.active = active;
-        body_def.userData = user_data;
-        body_def.inertiaScale = inertia_scale;
-        return world->CreateBody(&body_def);
-    }
-
-    b2Joint *create_revolute_joint(b2World *world,
-                                   b2Body *body_a,
-                                   b2Body *body_b,
-                                   b2Vec2 anchor,
-                                   bool limit_enabled,
-                                   float32 lower_angle,
-                                   float32 upper_angle,
-                                   bool motor_enabled,
-                                   float32 motor_speed,
-                                   float32 max_motor_torque,
-                                   b2UserData user_data,
-                                   bool collide_connected)
-    {
-        b2RevoluteJointDef revolute_joint_def;
-        revolute_joint_def.Initialize(body_a, body_b, anchor);
-        revolute_joint_def.enableLimit = limit_enabled;
-        revolute_joint_def.lowerAngle = lower_angle;
-        revolute_joint_def.upperAngle = upper_angle;
-        revolute_joint_def.enableMotor = motor_enabled;
-        revolute_joint_def.motorSpeed = motor_speed;
-        revolute_joint_def.maxMotorTorque = max_motor_torque;
-        revolute_joint_def.userData = user_data;
-        revolute_joint_def.collideConnected = collide_connected;
-        return world->CreateJoint(&revolute_joint_def);
-    }
-
-    b2Joint *create_prismatic_joint(b2World *world,
-                                    b2Body *body_a,
-                                    b2Body *body_b,
-                                    b2Vec2 anchor,
-                                    b2Vec2 axis,
-                                    bool limit_enabled,
-                                    float32 lower_translation,
-                                    float32 upper_translation,
-                                    bool motor_enabled,
-                                    float32 max_motor_force,
-                                    float32 motor_speed,
-                                    b2UserData user_data,
-                                    bool collide_connected)
-    {
-        b2PrismaticJointDef prismatic_joint_def;
-        prismatic_joint_def.Initialize(body_a, body_b, anchor, axis);
-        prismatic_joint_def.enableLimit = limit_enabled;
-        prismatic_joint_def.lowerTranslation = lower_translation;
-        prismatic_joint_def.upperTranslation = upper_translation;
-        prismatic_joint_def.enableMotor = motor_enabled;
-        prismatic_joint_def.maxMotorForce = max_motor_force;
-        prismatic_joint_def.motorSpeed = motor_speed;
-        prismatic_joint_def.userData = user_data;
-        prismatic_joint_def.collideConnected = collide_connected;
-        return world->CreateJoint(&prismatic_joint_def);
-    }
-
-    b2Joint *create_distance_joint(b2World *world,
-                                   b2Body *body_a,
-                                   b2Body *body_b,
-                                   b2Vec2 anchor_a,
-                                   b2Vec2 anchor_b,
-                                   float frequency,
-                                   float damping_ratio,
-                                   b2UserData user_data,
-                                   bool collide_connected)
-    {
-        b2DistanceJointDef distance_joint_def;
-        distance_joint_def.Initialize(body_a, body_b, anchor_a, anchor_b);
-        distance_joint_def.frequencyHz = frequency;
-        distance_joint_def.dampingRatio = damping_ratio;
-        distance_joint_def.userData = user_data;
-        distance_joint_def.collideConnected = collide_connected;
-        return world->CreateJoint(&distance_joint_def);
-    }
-
-    b2Joint *create_pulley_joint(b2World *world)
-    {
-        b2PulleyJointDef pulley_joint_def;
-        return world->CreateJoint(&pulley_joint_def);
-    }
-
-    b2Joint *create_mouse_joint(b2World *world)
-    {
-        b2MouseJointDef mouse_joint_def;
-        return world->CreateJoint(&mouse_joint_def);
-    }
-
-    b2Joint *create_gear_joint(b2World *world)
-    {
-        b2GearJointDef gear_joint_def;
-        return world->CreateJoint(&gear_joint_def);
-    }
-
-    b2Joint *create_line_joint(b2World *world)
-    {
-        b2LineJointDef line_joint_def;
-        return world->CreateJoint(&line_joint_def);
-    }
-
-    b2Joint *create_weld_joint(b2World *world)
-    {
-        b2WeldJointDef weld_joint_def;
-        return world->CreateJoint(&weld_joint_def);
-    }
-
-    b2Joint *create_friction_joint(b2World *world)
-    {
-        b2FrictionJointDef friction_joint_def;
-        return world->CreateJoint(&friction_joint_def);
+    namespace {
+        b2Body *create_body_1(b2World *world,
+                              b2BodyType type,
+                              b2Vec2 position,
+                              float32 angle,
+                              b2Vec2 linear_velocity,
+                              float32 angular_velocity,
+                              float32 linear_damping,
+                              float32 angular_damping,
+                              bool allow_sleep,
+                              bool awake,
+                              bool fixed_rotation,
+                              bool bullet,
+                              bool active,
+                              b2UserData user_data,
+                              float32 inertia_scale)
+        {
+            b2BodyDef body_def;
+            body_def.type = type;
+            body_def.position = position;
+            body_def.angle = angle;
+            body_def.linearVelocity = linear_velocity;
+            body_def.angularVelocity = angular_velocity;
+            body_def.linearDamping = linear_damping;
+            body_def.angularDamping = angular_damping;
+            body_def.allowSleep = allow_sleep;
+            body_def.awake = awake;
+            body_def.fixedRotation = fixed_rotation;
+            body_def.bullet = bullet;
+            body_def.active = active;
+            body_def.userData = user_data;
+            body_def.inertiaScale = inertia_scale;
+            return world->CreateBody(&body_def);
+        }
+    
+        template <b2BodyType T>
+        b2Body *create_body_2(b2World *world,
+                              b2Vec2 position,
+                              float32 angle,
+                              b2Vec2 linear_velocity,
+                              float32 angular_velocity,
+                              float32 linear_damping,
+                              float32 angular_damping,
+                              bool allow_sleep,
+                              bool awake,
+                              bool fixed_rotation,
+                              bool bullet,
+                              bool active,
+                              b2UserData user_data,
+                              float32 inertia_scale)
+        {
+            b2BodyDef body_def;
+            body_def.type = T;
+            body_def.position = position;
+            body_def.angle = angle;
+            body_def.linearVelocity = linear_velocity;
+            body_def.angularVelocity = angular_velocity;
+            body_def.linearDamping = linear_damping;
+            body_def.angularDamping = angular_damping;
+            body_def.allowSleep = allow_sleep;
+            body_def.awake = awake;
+            body_def.fixedRotation = fixed_rotation;
+            body_def.bullet = bullet;
+            body_def.active = active;
+            body_def.userData = user_data;
+            body_def.inertiaScale = inertia_scale;
+            return world->CreateBody(&body_def);
+        }
+    
+        b2Joint *create_revolute_joint(b2World *world,
+                                       b2Body *body_a,
+                                       b2Body *body_b,
+                                       b2Vec2 anchor,
+                                       bool limit_enabled,
+                                       float32 lower_angle,
+                                       float32 upper_angle,
+                                       bool motor_enabled,
+                                       float32 motor_speed,
+                                       float32 max_motor_torque,
+                                       b2UserData user_data,
+                                       bool collide_connected)
+        {
+            b2RevoluteJointDef revolute_joint_def;
+            revolute_joint_def.Initialize(body_a, body_b, anchor);
+            revolute_joint_def.enableLimit = limit_enabled;
+            revolute_joint_def.lowerAngle = lower_angle;
+            revolute_joint_def.upperAngle = upper_angle;
+            revolute_joint_def.enableMotor = motor_enabled;
+            revolute_joint_def.motorSpeed = motor_speed;
+            revolute_joint_def.maxMotorTorque = max_motor_torque;
+            revolute_joint_def.userData = user_data;
+            revolute_joint_def.collideConnected = collide_connected;
+            return world->CreateJoint(&revolute_joint_def);
+        }
+    
+        b2Joint *create_prismatic_joint(b2World *world,
+                                        b2Body *body_a,
+                                        b2Body *body_b,
+                                        b2Vec2 anchor,
+                                        b2Vec2 axis,
+                                        bool limit_enabled,
+                                        float32 lower_translation,
+                                        float32 upper_translation,
+                                        bool motor_enabled,
+                                        float32 max_motor_force,
+                                        float32 motor_speed,
+                                        b2UserData user_data,
+                                        bool collide_connected)
+        {
+            b2PrismaticJointDef prismatic_joint_def;
+            prismatic_joint_def.Initialize(body_a, body_b, anchor, axis);
+            prismatic_joint_def.enableLimit = limit_enabled;
+            prismatic_joint_def.lowerTranslation = lower_translation;
+            prismatic_joint_def.upperTranslation = upper_translation;
+            prismatic_joint_def.enableMotor = motor_enabled;
+            prismatic_joint_def.maxMotorForce = max_motor_force;
+            prismatic_joint_def.motorSpeed = motor_speed;
+            prismatic_joint_def.userData = user_data;
+            prismatic_joint_def.collideConnected = collide_connected;
+            return world->CreateJoint(&prismatic_joint_def);
+        }
+    
+        b2Joint *create_distance_joint(b2World *world,
+                                       b2Body *body_a,
+                                       b2Body *body_b,
+                                       b2Vec2 anchor_a,
+                                       b2Vec2 anchor_b,
+                                       float frequency,
+                                       float damping_ratio,
+                                       b2UserData user_data,
+                                       bool collide_connected)
+        {
+            b2DistanceJointDef distance_joint_def;
+            distance_joint_def.Initialize(body_a, body_b, anchor_a, anchor_b);
+            distance_joint_def.frequencyHz = frequency;
+            distance_joint_def.dampingRatio = damping_ratio;
+            distance_joint_def.userData = user_data;
+            distance_joint_def.collideConnected = collide_connected;
+            return world->CreateJoint(&distance_joint_def);
+        }
+    
+        b2Joint *create_pulley_joint(b2World *world)
+        {
+            b2PulleyJointDef pulley_joint_def;
+            return world->CreateJoint(&pulley_joint_def);
+        }
+    
+        b2Joint *create_mouse_joint(b2World *world)
+        {
+            b2MouseJointDef mouse_joint_def;
+            return world->CreateJoint(&mouse_joint_def);
+        }
+    
+        b2Joint *create_gear_joint(b2World *world)
+        {
+            b2GearJointDef gear_joint_def;
+            return world->CreateJoint(&gear_joint_def);
+        }
+    
+        b2Joint *create_line_joint(b2World *world)
+        {
+            b2LineJointDef line_joint_def;
+            return world->CreateJoint(&line_joint_def);
+        }
+    
+        b2Joint *create_weld_joint(b2World *world)
+        {
+            b2WeldJointDef weld_joint_def;
+            return world->CreateJoint(&weld_joint_def);
+        }
+    
+        b2Joint *create_friction_joint(b2World *world)
+        {
+            b2FrictionJointDef friction_joint_def;
+            return world->CreateJoint(&friction_joint_def);
+        }
     }
 
     void wrap_world()
