@@ -34,32 +34,6 @@ def manage_screen_transform(width, height, scale=1.0, x=0.0, y=0.0):
         glTranslatef(-x, -y, 0.0)
         yield
 
-@contextmanager
-def manage_body_transform(body):
-    with manage_matrix():
-        x, y = body.position
-        glTranslatef(x, y, 0.0)
-        glRotatef(body.angle * 180.0 / math.pi, 0.0, 0.0, 1.0)
-        yield
-
-def draw_body(body):
-    with manage_body_transform(body):
-        for fixture in iter_links(body.fixture_list):
-            draw_shape(fixture.shape)
-
-def draw_shape(shape):
-    if shape.type == pysics.CIRCLE_SHAPE:
-        x, y = shape.position
-        vertices = generate_circle_vertices(x, y, shape.radius, 16)
-        draw_vertices(vertices, GL_LINE_LOOP)
-        draw_vertices([(x, y), (x + shape.radius, y)], GL_LINES)
-    elif shape.type == pysics.EDGE_SHAPE:
-        pass
-    elif shape.type == pysics.POLYGON_SHAPE:
-        draw_vertices(shape.vertices, GL_LINE_LOOP)
-    elif shape.type == pysics.LOOP_SHAPE:
-        pass
-
 def generate_circle_vertices(x, y, radius, vertex_count):
     for i in xrange(vertex_count):
         angle = 2.0 * math.pi * float(i) / float(vertex_count)
@@ -296,6 +270,35 @@ class DocumentLoader(object):
         else:
             yield
 
+class MyDebugDraw(pysics.DebugDraw):
+    def draw_polygon(self, vertices, color):
+        draw_vertices(vertices, GL_LINE_LOOP)
+
+    def draw_solid_polygon(self, vertices, color):
+        draw_vertices(vertices, GL_LINE_LOOP)
+
+    def draw_circle(self, center, radius, color):
+        x, y = center
+        vertices = generate_circle_vertices(x, y, radius, 16)
+        draw_vertices(vertices, GL_LINE_LOOP)
+
+    def draw_solid_circle(self, center, radius, axis, color):
+        x, y = center
+        ax, ay = axis
+        vertices = generate_circle_vertices(x, y, radius, 16)
+        draw_vertices(vertices, GL_LINE_LOOP)
+        draw_vertices([(x, y), (x + radius * ax, y + radius * ay)], GL_LINES)
+
+    def draw_segment(self, p1, p2, color):
+        draw_vertices([p1, p2], GL_LINES)
+
+    def draw_transform(self, position, angle):
+        x, y = position
+        glPopMatrix()
+        glPushMatrix()
+        glTranslatef(x, y, 0.0)
+        glRotatef(angle * 180.0 / math.pi, 0.0, 0.0, 1.0)
+
 class MyWindow(pyglet.window.Window):
     def __init__(self, paths, **kwargs):
         super(MyWindow, self).__init__(**kwargs)
@@ -303,6 +306,8 @@ class MyWindow(pyglet.window.Window):
         self.world_time = 0.0
         self.world_dt = 1.0 / 60.0
         self.world = pysics.World((0.0, -10.0), True)
+        self.debug_draw = MyDebugDraw(pysics.SHAPE_BIT)
+        self.world.set_debug_draw(self.debug_draw)
         for path in paths:
             DocumentLoader(path, self.world).load()
         self.clock_display = pyglet.clock.ClockDisplay()
@@ -321,8 +326,9 @@ class MyWindow(pyglet.window.Window):
     def on_draw(self):
         self.clear()
         with manage_screen_transform(self.width, self.height, 0.05):
-            for body in iter_links(self.world.body_list):
-                draw_body(body)
+            glPushMatrix()
+            self.world.draw_debug_data()
+            glPopMatrix()
         self.clock_display.draw()
 
 def main():

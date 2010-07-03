@@ -343,6 +343,11 @@ namespace pysics {
     }
 
     struct DebugDrawWrapper : b2DebugDraw, wrapper<b2DebugDraw> {
+        explicit DebugDrawWrapper(uint32 flags = 0)
+        {
+            m_drawFlags = flags;
+        }
+
         void DrawPolygon(const b2Vec2 *vertices, int32 vertexCount, const b2Color &color)
         {
             list vertex_list;
@@ -391,7 +396,9 @@ namespace pysics {
         scope().attr("CENTER_OF_MASS_BIT") = uint32(b2DebugDraw::e_centerOfMassBit);
 
         class_<DebugDrawWrapper, boost::noncopyable>("DebugDraw")
-            .add_property("get_flags", &b2DebugDraw::GetFlags, &b2DebugDraw::SetFlags)
+            .def(init<uint32>())
+
+            .add_property("flags", &b2DebugDraw::GetFlags, &b2DebugDraw::SetFlags)
 
             .def("get_flags", &b2DebugDraw::GetFlags)
             .def("set_flags", &b2DebugDraw::SetFlags)
