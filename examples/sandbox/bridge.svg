@@ -56,7 +56,7 @@
      inkscape:window-height="778"
      inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata2822">
     <rdf:RDF>
@@ -145,9 +145,7 @@
        inkscape:transform-center-x="-115.07196"
        inkscape:transform-center-y="-59.804196">
       <desc
-         id="desc2846">type: revolute-joint;
-body-a: url(#path3207);
-body-b: url(#rect2824);</desc>
+         id="desc2846">type: revolute-joint;</desc>
     </path>
     <path
        d="M 532.57966,102.38853 A 9.7721043,9.7721043 0 1 1 513.03545,102.38853 A 9.7721043,9.7721043 0 1 1 532.57966,102.38853 z"
@@ -162,9 +160,7 @@ body-b: url(#rect2824);</desc>
        inkscape:transform-center-x="0.838391"
        inkscape:transform-center-y="1.098983">
       <desc
-         id="desc2844">type: revolute-joint;
-body-a: url(#rect2824);
-body-b: url(#rect2826);</desc>
+         id="desc2844">type: revolute-joint;</desc>
     </path>
     <path
        transform="matrix(1.6169902,0.50707069,-0.50565025,1.6215326,-125.48326,145.73526)"
@@ -179,9 +175,7 @@ body-b: url(#rect2826);</desc>
        inkscape:transform-center-x="-125.43345"
        inkscape:transform-center-y="-12.851632">
       <desc
-         id="desc2842">type: revolute-joint;
-body-a: url(#rect2826);
-body-b: url(#rect2828);</desc>
+         id="desc2842">type: revolute-joint;</desc>
     </path>
     <rect
        transform="matrix(-0.06065938,0.99815852,-0.9981378,-0.06099939,0,0)"
@@ -209,9 +203,7 @@ body-b: url(#rect2828);</desc>
        inkscape:transform-center-x="-130.101"
        inkscape:transform-center-y="9.3489835">
       <desc
-         id="desc2854">type: revolute-joint;
-body-a: url(#rect2828);
-body-b: url(#rect2848);</desc>
+         id="desc2854">type: revolute-joint;</desc>
     </path>
     <rect
        style="fill:#000080;fill-opacity:1;stroke:#c8b7b7;stroke-width:1.00000036;stroke-opacity:1"
@@ -239,9 +231,7 @@ body-b: url(#rect2848);</desc>
        inkscape:transform-center-x="-130.31351"
        inkscape:transform-center-y="30.138107">
       <desc
-         id="desc2862">type: revolute-joint;
-body-a: url(#rect2848);
-body-b: url(#rect2856);</desc>
+         id="desc2862">type: revolute-joint;</desc>
     </path>
     <rect
        transform="matrix(-0.38617255,0.92242656,-0.92165142,-0.3880189,0,0)"
@@ -269,9 +259,7 @@ body-b: url(#rect2856);</desc>
        inkscape:transform-center-x="-116.99203"
        inkscape:transform-center-y="46.226401">
       <desc
-         id="desc2870">type: revolute-joint;
-body-a: url(#rect2856);
-body-b: url(#rect2864);</desc>
+         id="desc2870">type: revolute-joint;</desc>
     </path>
     <path
        transform="matrix(1.4477203,0.88249807,-0.88002596,1.4517871,-500.39173,-104.63674)"
@@ -286,9 +274,7 @@ body-b: url(#rect2864);</desc>
        inkscape:transform-center-x="-0.34541118"
        inkscape:transform-center-y="-1.3156507">
       <desc
-         id="desc3201">type: revolute-joint;
-body-a: url(#path3205);
-body-b: url(#rect2864);</desc>
+         id="desc3201">type: revolute-joint;</desc>
     </path>
     <path
        sodipodi:type="arc"

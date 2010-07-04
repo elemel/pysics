@@ -14,7 +14,7 @@
    id="svg2816"
    version="1.1"
    inkscape:version="0.47 r22583"
-   sodipodi:docname="sandbox.svg">
+   sodipodi:docname="vehicle.svg">
   <defs
      id="defs2818">
     <inkscape:perspective
@@ -42,7 +42,7 @@
      inkscape:window-height="778"
      inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata2822">
     <rdf:RDF>
@@ -115,9 +115,7 @@
        d="M 608.07305,246.58017 A 101.34551,101.34551 0 1 1 405.38203,246.58017 A 101.34551,101.34551 0 1 1 608.07305,246.58017 z"
        transform="matrix(0.07929429,-0.11093902,-0.11093902,-0.07929429,710.59079,323.99936)">
       <desc
-         id="desc2951">type: revolute-joint;
-body-a: url(#rect2941);
-body-b: url(#path2889);</desc>
+         id="desc2951">type: revolute-joint;</desc>
     </path>
     <path
        transform="matrix(0.06607858,-0.09244919,-0.09244919,-0.06607858,573.03011,274.30308)"
@@ -131,10 +129,8 @@ body-b: url(#path2889);</desc>
        sodipodi:type="arc">
       <desc
          id="desc2955">type: revolute-joint;
-body-a: url(#rect2941);
-body-b: url(#path2937);
 motor-enabled: true;
-motor-speed: 10;
+motor-speed: -10;
 max-motor-torque: 10;</desc>
     </path>
   </g>

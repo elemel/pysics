@@ -70,11 +70,12 @@ def parse_float_tuple(arg):
     return tuple(float(s) for s in arg.replace(',', ' ').split())
 
 def parse_id_url(arg):
-    if arg.startswith('url(#') and arg.endswith(')'):
+    if arg == 'none':
+        return None
+    elif arg.startswith('url(#') and arg.endswith(')'):
         return arg[5:-1]
     else:
         raise ValueError('invalid ID URL: ' + arg)
-
 
 class Loader(object):
     def add_shape(self, matrix, attribute_chain, shape):
@@ -145,16 +146,25 @@ class JointLoader(Loader):
 class RevoluteJointLoader(JointLoader):
     def __init__(self, world, bodies, attribute_chain):
         super(RevoluteJointLoader, self).__init__(world, bodies)
-        self.body_a_id = parse_id_url(attribute_chain.get('body-a'))
-        self.body_b_id = parse_id_url(attribute_chain.get('body-b'))
+        self.body_a_id = parse_id_url(attribute_chain.get('body-a', 'none'))
+        self.body_b_id = parse_id_url(attribute_chain.get('body-b', 'none'))
         self.joint_attributes = self.parse_joint_attributes(attribute_chain)
 
     def load(self):
         if len(self.shapes) != 1 or not isinstance(self.shapes[0], pinky.Circle):
             raise TypeError('invalid shapes for revolute joint')
-        body_a = self.bodies[self.body_a_id]
-        body_b = self.bodies[self.body_b_id]
         anchor = self.shapes[0].cx, self.shapes[0].cy
+        bodies = [self.bodies[id_] for id_ in (self.body_a_id, self.body_b_id) if id_ is not None]
+        if len(bodies) < 2:
+            for fixture in self.world.query_aabb(anchor, anchor):
+                if fixture.body not in bodies:
+                    bodies.append(fixture.body)
+            if len(bodies) < 2:
+                raise ValueError('not enough bodies at anchor')
+            elif len(bodies) > 2:
+                raise ValueError('too many bodies at anchor')
+            bodies = bodies[:2]
+        body_a, body_b = bodies
         self.world.create_revolute_joint(body_a=body_a,
                                          body_b=body_b,
                                          anchor=anchor,

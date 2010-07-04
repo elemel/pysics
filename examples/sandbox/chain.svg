@@ -111,9 +111,7 @@
        d="M 532.57966,102.38853 A 9.7721043,9.7721043 0 1 1 513.03545,102.38853 A 9.7721043,9.7721043 0 1 1 532.57966,102.38853 z"
        transform="translate(30,-30)">
       <desc
-         id="desc2846">type: revolute-joint;
-body-a: url(#rect2882);
-body-b: url(#rect2824);</desc>
+         id="desc2846">type: revolute-joint;</desc>
     </path>
     <path
        d="M 532.57966,102.38853 A 9.7721043,9.7721043 0 1 1 513.03545,102.38853 A 9.7721043,9.7721043 0 1 1 532.57966,102.38853 z"
@@ -126,9 +124,7 @@ body-b: url(#rect2824);</desc>
        sodipodi:type="arc"
        transform="translate(-2.57368,40.033413)">
       <desc
-         id="desc2844">type: revolute-joint;
-body-a: url(#rect2824);
-body-b: url(#rect2826);</desc>
+         id="desc2844">type: revolute-joint;</desc>
     </path>
     <path
        transform="translate(-66.09236,97.03735)"
@@ -141,9 +137,7 @@ body-b: url(#rect2826);</desc>
        sodipodi:ry="9.7721043"
        d="M 532.57966,102.38853 A 9.7721043,9.7721043 0 1 1 513.03545,102.38853 A 9.7721043,9.7721043 0 1 1 532.57966,102.38853 z">
       <desc
-         id="desc2842">type: revolute-joint;
-body-a: url(#rect2826);
-body-b: url(#rect2828);</desc>
+         id="desc2842">type: revolute-joint;</desc>
     </path>
     <rect
        transform="matrix(-0.16931175,0.98556255,-0.98556255,-0.16931175,0,0)"
@@ -167,9 +161,7 @@ body-b: url(#rect2828);</desc>
        sodipodi:type="arc"
        transform="translate(-134.49709,127.98235)">
       <desc
-         id="desc2854">type: revolute-joint;
-body-a: url(#rect2828);
-body-b: url(#rect2848);</desc>
+         id="desc2854">type: revolute-joint;</desc>
     </path>
     <rect
        style="fill:#000080;fill-opacity:1;stroke:#c8b7b7;stroke-width:1;stroke-opacity:1"
@@ -193,9 +185,7 @@ body-b: url(#rect2848);</desc>
        sodipodi:ry="9.7721043"
        d="M 532.57966,102.38853 A 9.7721043,9.7721043 0 1 1 513.03545,102.38853 A 9.7721043,9.7721043 0 1 1 532.57966,102.38853 z">
       <desc
-         id="desc2862">type: revolute-joint;
-body-a: url(#rect2848);
-body-b: url(#rect2856);</desc>
+         id="desc2862">type: revolute-joint;</desc>
     </path>
     <rect
        transform="matrix(-0.82826209,0.56034089,-0.56034089,-0.82826209,0,0)"
@@ -219,9 +209,7 @@ body-b: url(#rect2856);</desc>
        sodipodi:type="arc"
        transform="matrix(0.43144137,0.90214098,-0.90214098,0.43144137,113.20328,-342.17582)">
       <desc
-         id="desc2870">type: revolute-joint;
-body-a: url(#rect2856);
-body-b: url(#rect2864);</desc>
+         id="desc2870">type: revolute-joint;</desc>
     </path>
     <rect
        style="fill:#00ff00;fill-opacity:1;stroke:#c8b7b7;stroke-width:1;stroke-opacity:1"
@@ -253,8 +241,6 @@ body-b: url(#rect2864);</desc>
        transform="translate(102,90)">
       <desc
          id="desc2880">type: revolute-joint;
-body-a: url(#rect2874);
-body-b: url(#rect2872);
 motor-enabled: true;
 motor-speed: -2;
 max-motor-torque: 30;</desc>
