@@ -262,9 +262,7 @@ namespace pysics {
     void wrap_world()
     {
         class_<b2World>("World", init<b2Vec2, bool>())
-            .add_property("body_list", make_function(&b2World::GetBodyList, return_internal_reference<>()))
             .add_property("bodies", &get_bodies)
-            .add_property("joint_list", make_function(&b2World::GetJointList, return_internal_reference<>()))
             .add_property("joints", &get_joints)
             .add_property("contact_list", make_function(&b2World::GetContactList, return_internal_reference<>()))
             .add_property("proxy_count", &b2World::GetProxyCount)
@@ -392,21 +390,8 @@ namespace pysics {
             .def("query_aabb", &query_aabb_1)
             .def("query_aabb", &query_aabb_2)
             .def("ray_cast", &b2World::RayCast)
-            .def("get_body_list", &b2World::GetBodyList, return_internal_reference<>())
-            .def("get_joint_list", &b2World::GetJointList, return_internal_reference<>())
-            .def("get_contact_list", &b2World::GetContactList, return_internal_reference<>())
             .def("set_warm_starting", &b2World::SetWarmStarting)
             .def("set_continuous_physics", &b2World::SetContinuousPhysics)
-            .def("get_proxy_count", &b2World::GetProxyCount)
-            .def("get_body_count", &b2World::GetBodyCount)
-            .def("get_joint_count", &b2World::GetJointCount)
-            .def("get_contact_count", &b2World::GetContactCount)
-            .def("get_gravity", &b2World::GetGravity)
-            .def("set_gravity", &b2World::SetGravity)
-            .def("is_locked", &b2World::IsLocked)
-            .def("get_auto_clear_forces", &b2World::GetAutoClearForces)
-            .def("set_auto_clear_forces", &b2World::SetAutoClearForces)
-            .def("get_contact_manager", &b2World::GetContactManager, return_internal_reference<>())
         ;
     }
 }
