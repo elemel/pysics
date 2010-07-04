@@ -52,7 +52,7 @@ namespace pysics {
             body_def.inertiaScale = inertia_scale;
             return world->CreateBody(&body_def);
         }
-    
+
         template <b2BodyType T>
         b2Body *create_body_2(b2World *world,
                               b2Vec2 position,
@@ -86,7 +86,7 @@ namespace pysics {
             body_def.inertiaScale = inertia_scale;
             return world->CreateBody(&body_def);
         }
-    
+
         b2Joint *create_revolute_joint(b2World *world,
                                        b2Body *body_a,
                                        b2Body *body_b,
@@ -112,7 +112,7 @@ namespace pysics {
             revolute_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&revolute_joint_def);
         }
-    
+
         b2Joint *create_prismatic_joint(b2World *world,
                                         b2Body *body_a,
                                         b2Body *body_b,
@@ -139,7 +139,7 @@ namespace pysics {
             prismatic_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&prismatic_joint_def);
         }
-    
+
         b2Joint *create_distance_joint(b2World *world,
                                        b2Body *body_a,
                                        b2Body *body_b,
@@ -158,41 +158,86 @@ namespace pysics {
             distance_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&distance_joint_def);
         }
-    
+
         b2Joint *create_pulley_joint(b2World *world)
         {
             b2PulleyJointDef pulley_joint_def;
             return world->CreateJoint(&pulley_joint_def);
         }
-    
+
         b2Joint *create_mouse_joint(b2World *world)
         {
             b2MouseJointDef mouse_joint_def;
             return world->CreateJoint(&mouse_joint_def);
         }
-    
+
         b2Joint *create_gear_joint(b2World *world)
         {
             b2GearJointDef gear_joint_def;
             return world->CreateJoint(&gear_joint_def);
         }
-    
+
         b2Joint *create_line_joint(b2World *world)
         {
             b2LineJointDef line_joint_def;
             return world->CreateJoint(&line_joint_def);
         }
-    
+
         b2Joint *create_weld_joint(b2World *world)
         {
             b2WeldJointDef weld_joint_def;
             return world->CreateJoint(&weld_joint_def);
         }
-    
+
         b2Joint *create_friction_joint(b2World *world)
         {
             b2FrictionJointDef friction_joint_def;
             return world->CreateJoint(&friction_joint_def);
+        }
+
+        struct QueryCallbackWrapper1 : b2QueryCallback {
+            object callback_;
+
+            explicit QueryCallbackWrapper1(object callback)
+            : callback_(callback)
+            { }
+
+            bool ReportFixture(b2Fixture *fixture)
+            {
+                return callback_(fixture);
+            }
+        };
+
+        void query_aabb_1(b2World *world, object callback, b2Vec2 lower_bound,
+                          b2Vec2 upper_bound)
+        {
+            QueryCallbackWrapper1 callback_wrapper(callback);
+            b2AABB aabb;
+            aabb.lowerBound = lower_bound;
+            aabb.upperBound = upper_bound;
+            world->QueryAABB(&callback_wrapper, aabb);
+        }
+
+        struct QueryCallbackWrapper2 : b2QueryCallback {
+            list result_;
+
+            bool ReportFixture(b2Fixture *fixture)
+            {
+                reference_existing_object::apply<b2Fixture *>::type converter;
+                object obj(handle<>(converter(fixture)));
+                result_.append(obj);
+                return true;
+            }
+        };
+
+        list query_aabb_2(b2World *world, b2Vec2 lower_bound, b2Vec2 upper_bound)
+        {
+            QueryCallbackWrapper2 callback_wrapper;
+            b2AABB aabb;
+            aabb.lowerBound = lower_bound;
+            aabb.upperBound = upper_bound;
+            world->QueryAABB(&callback_wrapper, aabb);
+            return callback_wrapper.result_;
         }
     }
 
@@ -324,7 +369,8 @@ namespace pysics {
             .def("step", &b2World::Step)
             .def("clear_forces", &b2World::ClearForces)
             .def("draw_debug_data", &b2World::DrawDebugData)
-            .def("query_aabb", &b2World::QueryAABB)
+            .def("query_aabb", &query_aabb_1)
+            .def("query_aabb", &query_aabb_2)
             .def("ray_cast", &b2World::RayCast)
             .def("get_body_list", &b2World::GetBodyList, return_internal_reference<>())
             .def("get_joint_list", &b2World::GetJointList, return_internal_reference<>())
