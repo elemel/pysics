@@ -1,5 +1,7 @@
 #include "wrap_world.hpp"
 
+#include "convert.hpp"
+
 #include <boost/python.hpp>
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Dynamics/b2World.h>
@@ -19,6 +21,24 @@ using namespace boost::python;
 
 namespace pysics {
     namespace {
+        list get_bodies(b2World *world)
+        {
+            list bodies;
+            for (b2Body *body = world->GetBodyList(); body; body = body->GetNext()) {
+                bodies.append(convert_raw_ptr(body));
+            }
+            return bodies;
+        }
+
+        list get_joints(b2World *world)
+        {
+            list joints;
+            for (b2Joint *joint = world->GetJointList(); joint; joint = joint->GetNext()) {
+                joints.append(convert_raw_ptr(joint));
+            }
+            return joints;
+        }
+
         b2Body *create_body_1(b2World *world,
                               b2BodyType type,
                               b2Vec2 position,
@@ -223,9 +243,7 @@ namespace pysics {
 
             bool ReportFixture(b2Fixture *fixture)
             {
-                reference_existing_object::apply<b2Fixture *>::type converter;
-                object obj(handle<>(converter(fixture)));
-                result_.append(obj);
+                result_.append(convert_raw_ptr(fixture));
                 return true;
             }
         };
@@ -245,7 +263,9 @@ namespace pysics {
     {
         class_<b2World>("World", init<b2Vec2, bool>())
             .add_property("body_list", make_function(&b2World::GetBodyList, return_internal_reference<>()))
+            .add_property("bodies", &get_bodies)
             .add_property("joint_list", make_function(&b2World::GetJointList, return_internal_reference<>()))
+            .add_property("joints", &get_joints)
             .add_property("contact_list", make_function(&b2World::GetContactList, return_internal_reference<>()))
             .add_property("proxy_count", &b2World::GetProxyCount)
             .add_property("body_count", &b2World::GetBodyCount)

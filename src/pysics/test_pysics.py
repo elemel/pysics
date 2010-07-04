@@ -111,7 +111,7 @@ def _test_identity(a, b):
 def test_body_identity():
     with manage_world() as world:
         with manage_dynamic_body(world):
-            _test_identity(world.body_list, world.body_list)
+            _test_identity(world.bodies[0], world.bodies[0])
 
 def test_fixture_identity():
     with manage_world() as world:
