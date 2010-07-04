@@ -7,12 +7,6 @@ import pysics
 import sys
 from xml.dom import minidom
 
-def iter_links(link):
-    while link is not None:
-        next = link.next
-        yield link
-        link = next
-
 @contextmanager
 def manage_matrix():
     glPushMatrix()
