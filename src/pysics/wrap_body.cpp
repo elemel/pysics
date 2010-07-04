@@ -16,178 +16,9 @@
 using namespace boost::python;
 
 namespace pysics {
-    void wrap_body_type()
-    {
-        enum_<b2BodyType>("BodyType")
-            .value("STATIC_BODY", b2_staticBody)
-            .value("KINEMATIC_BODY", b2_kinematicBody)
-            .value("DYNAMIC_BODY", b2_dynamicBody)
-            .export_values()
-        ;
-    }
-
-    b2Fixture *create_fixture(b2Body *body,
-                              b2Shape *shape,
-                              b2UserData user_data,
-                              float32 friction,
-                              float32 restitution,
-                              float32 density,
-                              bool sensor,
-                              uint16 category_bits,
-                              uint16 mask_bits,
-                              uint16 group_index)
-    {
-        b2FixtureDef fixture_def;
-        fixture_def.shape = shape;
-        fixture_def.userData = user_data;
-        fixture_def.friction = friction;
-        fixture_def.restitution = restitution;
-        fixture_def.density = density;
-        fixture_def.isSensor = sensor;
-        fixture_def.filter.categoryBits = category_bits;
-        fixture_def.filter.maskBits = mask_bits;
-        fixture_def.filter.groupIndex = group_index;
-        return body->CreateFixture(&fixture_def);
-    }
-
-    b2Fixture *create_circle_fixture(b2Body *body,
-                                     b2Vec2 position,
-                                     float32 radius,
-                                     b2UserData user_data,
-                                     float32 friction,
-                                     float32 restitution,
-                                     float32 density,
-                                     bool sensor,
-                                     uint16 category_bits,
-                                     uint16 mask_bits,
-                                     uint16 group_index)
-    {
-        b2CircleShape circle_shape;
-        circle_shape.m_p = position;
-        circle_shape.m_radius = radius;
-
-        b2FixtureDef fixture_def;
-        fixture_def.shape = &circle_shape;
-        fixture_def.userData = user_data;
-        fixture_def.friction = friction;
-        fixture_def.restitution = restitution;
-        fixture_def.density = density;
-        fixture_def.isSensor = sensor;
-        fixture_def.filter.categoryBits = category_bits;
-        fixture_def.filter.maskBits = mask_bits;
-        fixture_def.filter.groupIndex = group_index;
-
-        return body->CreateFixture(&fixture_def);
-    }
-
-    b2Fixture *create_edge_fixture(b2Body *body,
-                                   b2Vec2 vertex_1,
-                                   b2Vec2 vertex_2,
-                                   b2UserData user_data,
-                                   float32 friction,
-                                   float32 restitution,
-                                   float32 density,
-                                   bool sensor,
-                                   uint16 category_bits,
-                                   uint16 mask_bits,
-                                   uint16 group_index)
-    {
-        b2EdgeShape edge_shape;
-        edge_shape.m_vertex1 = vertex_1;
-        edge_shape.m_vertex2 = vertex_2;
-
-        b2FixtureDef fixture_def;
-        fixture_def.shape = &edge_shape;
-        fixture_def.userData = user_data;
-        fixture_def.friction = friction;
-        fixture_def.restitution = restitution;
-        fixture_def.density = density;
-        fixture_def.isSensor = sensor;
-        fixture_def.filter.categoryBits = category_bits;
-        fixture_def.filter.maskBits = mask_bits;
-        fixture_def.filter.groupIndex = group_index;
-
-        return body->CreateFixture(&fixture_def);
-    }
-
     namespace {
-        void set_vertices(b2PolygonShape *polygon_shape, list vertices)
-        {
-            b2Vec2 arr[b2_maxPolygonVertices];
-            long n = len(vertices);
-            for (long i = 0; i != n; ++i) {
-                arr[i] = extract<b2Vec2>(vertices[i]);
-            }
-            polygon_shape->Set(arr, n);
-        }
-    }
-
-    b2Fixture *create_polygon_fixture(b2Body *body,
-                                      list vertices,
-                                      b2UserData user_data,
-                                      float32 friction,
-                                      float32 restitution,
-                                      float32 density,
-                                      bool sensor,
-                                      uint16 category_bits,
-                                      uint16 mask_bits,
-                                      uint16 group_index)
-    {
-        b2PolygonShape polygon_shape;
-        if (len(vertices)) {
-            set_vertices(&polygon_shape, vertices);
-        } else {
-            polygon_shape.SetAsBox(0.5f, 0.5f);
-        }
-
-        b2FixtureDef fixture_def;
-        fixture_def.shape = &polygon_shape;
-        fixture_def.userData = user_data;
-        fixture_def.friction = friction;
-        fixture_def.restitution = restitution;
-        fixture_def.density = density;
-        fixture_def.isSensor = sensor;
-        fixture_def.filter.categoryBits = category_bits;
-        fixture_def.filter.maskBits = mask_bits;
-        fixture_def.filter.groupIndex = group_index;
-
-        return body->CreateFixture(&fixture_def);
-    }
-
-    b2Fixture *create_loop_fixture(b2Body *body,
-                                   VertexArray vertices,
-                                   b2UserData user_data,
-                                   float32 friction,
-                                   float32 restitution,
-                                   float32 density,
-                                   bool sensor,
-                                   uint16 category_bits,
-                                   uint16 mask_bits,
-                                   uint16 group_index)
-    {
-        b2LoopShape loop_shape;
-        loop_shape.m_vertices = vertices.ptr();
-        loop_shape.m_count = vertices.size();
-
-        b2FixtureDef fixture_def;
-        fixture_def.shape = &loop_shape;
-        fixture_def.userData = user_data;
-        fixture_def.friction = friction;
-        fixture_def.restitution = restitution;
-        fixture_def.density = density;
-        fixture_def.isSensor = sensor;
-        fixture_def.filter.categoryBits = category_bits;
-        fixture_def.filter.maskBits = mask_bits;
-        fixture_def.filter.groupIndex = group_index;
-
-        return body->CreateFixture(&fixture_def);
-    }
-
-    b2Fixture *create_box_fixture(b2Body *body,
-                                  float32 half_width,
-                                  float32 half_height,
-                                  b2Vec2 center,
-                                  float32 angle,
+        b2Fixture *create_fixture(b2Body *body,
+                                  b2Shape *shape,
                                   b2UserData user_data,
                                   float32 friction,
                                   float32 restitution,
@@ -196,22 +27,206 @@ namespace pysics {
                                   uint16 category_bits,
                                   uint16 mask_bits,
                                   uint16 group_index)
+        {
+            b2FixtureDef fixture_def;
+            fixture_def.shape = shape;
+            fixture_def.userData = user_data;
+            fixture_def.friction = friction;
+            fixture_def.restitution = restitution;
+            fixture_def.density = density;
+            fixture_def.isSensor = sensor;
+            fixture_def.filter.categoryBits = category_bits;
+            fixture_def.filter.maskBits = mask_bits;
+            fixture_def.filter.groupIndex = group_index;
+            return body->CreateFixture(&fixture_def);
+        }
+
+        b2Fixture *create_circle_fixture(b2Body *body,
+                                         b2Vec2 position,
+                                         float32 radius,
+                                         b2UserData user_data,
+                                         float32 friction,
+                                         float32 restitution,
+                                         float32 density,
+                                         bool sensor,
+                                         uint16 category_bits,
+                                         uint16 mask_bits,
+                                         uint16 group_index)
+        {
+            b2CircleShape circle_shape;
+            circle_shape.m_p = position;
+            circle_shape.m_radius = radius;
+
+            b2FixtureDef fixture_def;
+            fixture_def.shape = &circle_shape;
+            fixture_def.userData = user_data;
+            fixture_def.friction = friction;
+            fixture_def.restitution = restitution;
+            fixture_def.density = density;
+            fixture_def.isSensor = sensor;
+            fixture_def.filter.categoryBits = category_bits;
+            fixture_def.filter.maskBits = mask_bits;
+            fixture_def.filter.groupIndex = group_index;
+
+            return body->CreateFixture(&fixture_def);
+        }
+
+        b2Fixture *create_edge_fixture(b2Body *body,
+                                       b2Vec2 vertex_1,
+                                       b2Vec2 vertex_2,
+                                       b2UserData user_data,
+                                       float32 friction,
+                                       float32 restitution,
+                                       float32 density,
+                                       bool sensor,
+                                       uint16 category_bits,
+                                       uint16 mask_bits,
+                                       uint16 group_index)
+        {
+            b2EdgeShape edge_shape;
+            edge_shape.m_vertex1 = vertex_1;
+            edge_shape.m_vertex2 = vertex_2;
+
+            b2FixtureDef fixture_def;
+            fixture_def.shape = &edge_shape;
+            fixture_def.userData = user_data;
+            fixture_def.friction = friction;
+            fixture_def.restitution = restitution;
+            fixture_def.density = density;
+            fixture_def.isSensor = sensor;
+            fixture_def.filter.categoryBits = category_bits;
+            fixture_def.filter.maskBits = mask_bits;
+            fixture_def.filter.groupIndex = group_index;
+
+            return body->CreateFixture(&fixture_def);
+        }
+
+        void set_polygon_shape_vertices(b2PolygonShape *polygon_shape, list vertices)
+        {
+            b2Vec2 arr[b2_maxPolygonVertices];
+            long n = len(vertices);
+            for (long i = 0; i != n; ++i) {
+                arr[i] = extract<b2Vec2>(vertices[i]);
+            }
+            polygon_shape->Set(arr, n);
+        }
+
+        b2Fixture *create_polygon_fixture(b2Body *body,
+                                          list vertices,
+                                          b2UserData user_data,
+                                          float32 friction,
+                                          float32 restitution,
+                                          float32 density,
+                                          bool sensor,
+                                          uint16 category_bits,
+                                          uint16 mask_bits,
+                                          uint16 group_index)
+        {
+            b2PolygonShape polygon_shape;
+            if (len(vertices)) {
+                set_polygon_shape_vertices(&polygon_shape, vertices);
+            } else {
+                polygon_shape.SetAsBox(0.5f, 0.5f);
+            }
+
+            b2FixtureDef fixture_def;
+            fixture_def.shape = &polygon_shape;
+            fixture_def.userData = user_data;
+            fixture_def.friction = friction;
+            fixture_def.restitution = restitution;
+            fixture_def.density = density;
+            fixture_def.isSensor = sensor;
+            fixture_def.filter.categoryBits = category_bits;
+            fixture_def.filter.maskBits = mask_bits;
+            fixture_def.filter.groupIndex = group_index;
+
+            return body->CreateFixture(&fixture_def);
+        }
+
+        b2Fixture *create_loop_fixture(b2Body *body,
+                                       VertexArray vertices,
+                                       b2UserData user_data,
+                                       float32 friction,
+                                       float32 restitution,
+                                       float32 density,
+                                       bool sensor,
+                                       uint16 category_bits,
+                                       uint16 mask_bits,
+                                       uint16 group_index)
+        {
+            b2LoopShape loop_shape;
+            loop_shape.m_vertices = vertices.ptr();
+            loop_shape.m_count = vertices.size();
+
+            b2FixtureDef fixture_def;
+            fixture_def.shape = &loop_shape;
+            fixture_def.userData = user_data;
+            fixture_def.friction = friction;
+            fixture_def.restitution = restitution;
+            fixture_def.density = density;
+            fixture_def.isSensor = sensor;
+            fixture_def.filter.categoryBits = category_bits;
+            fixture_def.filter.maskBits = mask_bits;
+            fixture_def.filter.groupIndex = group_index;
+
+            return body->CreateFixture(&fixture_def);
+        }
+
+        b2Fixture *create_box_fixture(b2Body *body,
+                                      float32 half_width,
+                                      float32 half_height,
+                                      b2Vec2 center,
+                                      float32 angle,
+                                      b2UserData user_data,
+                                      float32 friction,
+                                      float32 restitution,
+                                      float32 density,
+                                      bool sensor,
+                                      uint16 category_bits,
+                                      uint16 mask_bits,
+                                      uint16 group_index)
+        {
+            b2PolygonShape polygon_shape;
+            polygon_shape.SetAsBox(half_width, half_height, center, angle);
+
+            b2FixtureDef fixture_def;
+            fixture_def.shape = &polygon_shape;
+            fixture_def.userData = user_data;
+            fixture_def.friction = friction;
+            fixture_def.restitution = restitution;
+            fixture_def.density = density;
+            fixture_def.isSensor = sensor;
+            fixture_def.filter.categoryBits = category_bits;
+            fixture_def.filter.maskBits = mask_bits;
+            fixture_def.filter.groupIndex = group_index;
+
+            return body->CreateFixture(&fixture_def);
+        }
+
+        bool body_eq(b2Body *left, b2Body *right)
+        {
+            return left == right;
+        }
+
+        bool body_ne(b2Body *left, b2Body *right)
+        {
+            return left != right;
+        }
+
+        std::size_t hash_body(b2Body *body)
+        {
+            return reinterpret_cast<std::size_t>(body);
+        }
+    }
+
+    void wrap_body_type()
     {
-        b2PolygonShape polygon_shape;
-        polygon_shape.SetAsBox(half_width, half_height, center, angle);
-
-        b2FixtureDef fixture_def;
-        fixture_def.shape = &polygon_shape;
-        fixture_def.userData = user_data;
-        fixture_def.friction = friction;
-        fixture_def.restitution = restitution;
-        fixture_def.density = density;
-        fixture_def.isSensor = sensor;
-        fixture_def.filter.categoryBits = category_bits;
-        fixture_def.filter.maskBits = mask_bits;
-        fixture_def.filter.groupIndex = group_index;
-
-        return body->CreateFixture(&fixture_def);
+        enum_<b2BodyType>("BodyType")
+            .value("STATIC_BODY", b2_staticBody)
+            .value("KINEMATIC_BODY", b2_kinematicBody)
+            .value("DYNAMIC_BODY", b2_dynamicBody)
+            .export_values()
+        ;
     }
 
     void wrap_body()
@@ -223,6 +238,10 @@ namespace pysics {
         b2World *(b2Body::*get_world)() = &b2Body::GetWorld;
 
         class_<b2Body, boost::noncopyable>("Body", no_init)
+            .def("__eq__", &body_eq)
+            .def("__ne__", &body_ne)
+            .def("__hash__", &hash_body)
+
             .def("create_fixture", &create_fixture, return_internal_reference<>(),
                  (arg("self"),
                   arg("shape"),

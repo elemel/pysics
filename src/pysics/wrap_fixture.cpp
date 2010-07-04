@@ -7,40 +7,55 @@ using namespace boost::python;
 
 namespace pysics {
     namespace {
-        uint16 fixture_get_category_bits(const b2Fixture *fixture)
+        uint16 get_fixture_category_bits(const b2Fixture *fixture)
         {
             return fixture->GetFilterData().categoryBits;
         }
 
-        void fixture_set_category_bits(b2Fixture *fixture, uint16 category_bits)
+        void set_fixture_category_bits(b2Fixture *fixture, uint16 category_bits)
         {
             b2Filter filter = fixture->GetFilterData();
             filter.categoryBits = category_bits;
             fixture->SetFilterData(filter);
         }
 
-        uint16 fixture_get_mask_bits(const b2Fixture *fixture)
+        uint16 get_fixture_mask_bits(const b2Fixture *fixture)
         {
             return fixture->GetFilterData().maskBits;
         }
 
-        void fixture_set_mask_bits(b2Fixture *fixture, uint16 mask_bits)
+        void set_fixture_mask_bits(b2Fixture *fixture, uint16 mask_bits)
         {
             b2Filter filter = fixture->GetFilterData();
             filter.maskBits = mask_bits;
             fixture->SetFilterData(filter);
         }
 
-        uint16 fixture_get_group_index(const b2Fixture *fixture)
+        uint16 get_fixture_group_index(const b2Fixture *fixture)
         {
             return fixture->GetFilterData().groupIndex;
         }
 
-        void fixture_set_group_index(b2Fixture *fixture, uint16 group_index)
+        void set_fixture_group_index(b2Fixture *fixture, uint16 group_index)
         {
             b2Filter filter = fixture->GetFilterData();
             filter.groupIndex = group_index;
             fixture->SetFilterData(filter);
+        }
+
+        bool fixture_eq(b2Fixture *left, b2Fixture *right)
+        {
+            return left == right;
+        }
+
+        bool fixture_ne(b2Fixture *left, b2Fixture *right)
+        {
+            return left != right;
+        }
+
+        std::size_t hash_fixture(b2Fixture *fixture)
+        {
+            return reinterpret_cast<std::size_t>(fixture);
         }
     }
 
@@ -51,12 +66,16 @@ namespace pysics {
         b2Fixture *(b2Fixture::*get_next)() = &b2Fixture::GetNext;
 
         class_<b2Fixture, boost::noncopyable>("Fixture", no_init)
+            .def("__eq__", &fixture_eq)
+            .def("__ne__", &fixture_ne)
+            .def("__hash__", &hash_fixture)
+
             .add_property("type", &b2Fixture::GetType)
             .add_property("shape", make_function(get_shape, return_internal_reference<>()))
             .add_property("sensor", &b2Fixture::IsSensor, &b2Fixture::SetSensor)
-            .add_property("category_bits", &fixture_get_category_bits, &fixture_set_category_bits)
-            .add_property("mask_bits", &fixture_get_mask_bits, &fixture_set_mask_bits)
-            .add_property("group_index", &fixture_get_group_index, &fixture_set_group_index)
+            .add_property("category_bits", &get_fixture_category_bits, &set_fixture_category_bits)
+            .add_property("mask_bits", &get_fixture_mask_bits, &set_fixture_mask_bits)
+            .add_property("group_index", &get_fixture_group_index, &set_fixture_group_index)
             .add_property("body", make_function(get_body, return_internal_reference<>()))
             .add_property("next", make_function(get_next, return_internal_reference<>()))
             .add_property("user_data", &b2Fixture::GetUserData, &b2Fixture::SetUserData)
