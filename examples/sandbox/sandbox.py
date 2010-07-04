@@ -317,7 +317,7 @@ class MyWindow(pyglet.window.Window):
         self.world_dt = 1.0 / 60.0
         self.world = pysics.World((0.0, -10.0), True)
         self.debug_draw = MyDebugDraw(pysics.SHAPE_BIT)
-        self.world.set_debug_draw(self.debug_draw)
+        self.world.debug_draw = self.debug_draw
         for path in paths:
             DocumentLoader(path, self.world).load()
         self.clock_display = pyglet.clock.ClockDisplay()

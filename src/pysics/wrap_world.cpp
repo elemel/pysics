@@ -262,9 +262,16 @@ namespace pysics {
     void wrap_world()
     {
         class_<b2World>("World", init<b2Vec2, bool>())
+            .add_property("destruction_listener", object(), &b2World::SetDestructionListener)
+            .add_property("contact_filter", object(), &b2World::SetContactFilter)
+            .add_property("contact_listener", object(), &b2World::SetContactListener)
+            .add_property("debug_draw", object(), &b2World::SetDebugDraw)
             .add_property("bodies", &get_bodies)
             .add_property("joints", &get_joints)
             .add_property("contact_list", make_function(&b2World::GetContactList, return_internal_reference<>()))
+            .add_property("warm_starting", object(), &b2World::SetWarmStarting)
+            .add_property("continuous_physics", object(), &b2World::SetContinuousPhysics)
+            .add_property("sub_stepping", object(), &b2World::SetSubStepping)
             .add_property("proxy_count", &b2World::GetProxyCount)
             .add_property("body_count", &b2World::GetBodyCount)
             .add_property("joint_count", &b2World::GetJointCount)
@@ -274,10 +281,6 @@ namespace pysics {
             .add_property("auto_clear_forces", &b2World::GetAutoClearForces, &b2World::SetAutoClearForces)
             .add_property("contact_manager", make_function(&b2World::GetContactManager, return_internal_reference<>()))
 
-            .def("set_destruction_listener", &b2World::SetDestructionListener)
-            .def("set_contact_filter", &b2World::SetContactFilter)
-            .def("set_contact_listener", &b2World::SetContactListener)
-            .def("set_debug_draw", &b2World::SetDebugDraw)
             .def("create_body", &create_body_1, return_internal_reference<>(),
                  (arg("self"),
                   arg("type"),
@@ -390,8 +393,6 @@ namespace pysics {
             .def("query_aabb", &query_aabb_1)
             .def("query_aabb", &query_aabb_2)
             .def("ray_cast", &b2World::RayCast)
-            .def("set_warm_starting", &b2World::SetWarmStarting)
-            .def("set_continuous_physics", &b2World::SetContinuousPhysics)
         ;
     }
 }
