@@ -93,7 +93,7 @@
        transform="matrix(0.99957055,0.0293039,-0.0293039,0.99957055,0,0)">
       <desc
          id="desc2947">type: kinematic-body;
-linear-velocity: 2 0;</desc>
+linear-velocity: 1 0;</desc>
     </rect>
     <path
        sodipodi:type="arc"
