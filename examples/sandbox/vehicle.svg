@@ -84,13 +84,17 @@
          id="desc2933">type: dynamic-body;</desc>
     </path>
     <rect
-       style="fill:#ff0000;fill-opacity:1;stroke:#c8b7b7;stroke-opacity:1"
+       style="fill:#ff0000;fill-opacity:1;stroke:#c8b7b7;stroke-width:1;stroke-opacity:1"
        id="rect2935"
        width="771.60785"
        height="29.942991"
-       x="149.12515"
-       y="585.86749"
-       transform="matrix(0.99957055,0.0293039,-0.0293039,0.99957055,0,0)" />
+       x="95.639328"
+       y="490.65509"
+       transform="matrix(0.99957055,0.0293039,-0.0293039,0.99957055,0,0)">
+      <desc
+         id="desc2947">type: kinematic-body;
+linear-velocity: 2 0;</desc>
+    </rect>
     <path
        sodipodi:type="arc"
        style="fill:#ff0000;fill-opacity:1;stroke:#c8b7b7;stroke-width:1.62962961;stroke-opacity:1"
@@ -133,5 +137,17 @@ motor-enabled: true;
 motor-speed: -10;
 max-motor-torque: 10;</desc>
     </path>
+    <rect
+       transform="matrix(0.99948854,-0.03197895,0.03197895,0.99948854,0,0)"
+       y="631.52087"
+       x="189.22089"
+       height="29.942991"
+       width="771.60785"
+       id="rect2949"
+       style="fill:#ff0000;fill-opacity:1;stroke:#c8b7b7;stroke-width:1;stroke-opacity:1">
+      <desc
+         id="desc2952">type: kinematic-body;
+linear-velocity: -1 0;</desc>
+    </rect>
   </g>
 </svg>
