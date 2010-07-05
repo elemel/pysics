@@ -1,5 +1,6 @@
 #include "wrap_body.hpp"
 
+#include "convert.hpp"
 #include "wrap_vertex_array.hpp"
 
 #include <boost/python.hpp>
@@ -17,6 +18,30 @@ using namespace boost::python;
 
 namespace pysics {
     namespace {
+        list get_fixtures(b2Body *body)
+        {
+            list fixtures;
+            for (b2Fixture *fixture = body->GetFixtureList();
+                 fixture;
+                 fixture = fixture->GetNext())
+            {
+                fixtures.append(convert_raw_ptr(fixture));
+            }
+            return fixtures;
+        }
+
+        list get_joints(b2Body *body)
+        {
+            list joints;
+            for (b2JointEdge *joint_edge = body->GetJointList();
+                 joint_edge;
+                 joint_edge = joint_edge->next)
+            {
+                joints.append(convert_raw_ptr(joint_edge->joint));
+            }
+            return joints;
+        }
+
         b2Fixture *create_fixture(b2Body *body,
                                   b2Shape *shape,
                                   b2UserData user_data,
@@ -231,8 +256,6 @@ namespace pysics {
 
     void wrap_body()
     {
-        b2Fixture *(b2Body::*get_fixture_list)() = &b2Body::GetFixtureList;
-        b2JointEdge *(b2Body::*get_joint_list)() = &b2Body::GetJointList;
         b2ContactEdge *(b2Body::*get_contact_list)() = &b2Body::GetContactList;
         b2Body *(b2Body::*get_next)() = &b2Body::GetNext;
         b2World *(b2Body::*get_world)() = &b2Body::GetWorld;
@@ -343,8 +366,8 @@ namespace pysics {
             .add_property("awake", &b2Body::IsAwake, &b2Body::SetAwake)
             .add_property("active", &b2Body::IsActive, &b2Body::SetActive)
             .add_property("fixed_rotation", &b2Body::IsFixedRotation, &b2Body::SetFixedRotation)
-            .add_property("fixture_list", make_function(get_fixture_list, return_internal_reference<>()))
-            .add_property("joint_list", make_function(get_joint_list, return_internal_reference<>()))
+            .add_property("fixtures", &get_fixtures)
+            .add_property("joints", &get_joints)
             .add_property("contact_list", make_function(get_contact_list, return_internal_reference<>()))
             .add_property("next", make_function(get_next, return_internal_reference<>()))
             .add_property("user_data", &b2Body::GetUserData, &b2Body::SetUserData)

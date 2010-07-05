@@ -117,16 +117,14 @@ def test_fixture_identity():
     with manage_world() as world:
         with manage_dynamic_body(world) as body:
             with manage_circle_fixture(body):
-                _test_identity(body.fixture_list, body.fixture_list)
+                _test_identity(body.fixtures[0], body.fixtures[0])
 
-"""
 def test_joint_identity():
     with manage_world() as world:
         with manage_static_body(world) as body_a:
             with manage_dynamic_body(world) as body_b:
                 with manage_revolute_joint(world, body_a, body_b, (0, 0)):
-                    print body_a.joint_list
-"""
+                    _test_identity(body_a.joints[0], body_b.joints[0])
 
 if __name__ == '__main__':
     nose.main()
