@@ -1,4 +1,4 @@
-#include "wrap_vertex_array.hpp"
+#include "vertex_array.hpp"
 
 #include <boost/python.hpp>
 

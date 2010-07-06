@@ -1,5 +1,3 @@
-#include "wrap_vec_2.hpp"
-
 #include <boost/python.hpp>
 #include <Box2D/Common/b2Math.h>
 

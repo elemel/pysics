@@ -1,5 +1,3 @@
-#include "wrap_world.hpp"
-
 #include "convert.hpp"
 
 #include <boost/python.hpp>

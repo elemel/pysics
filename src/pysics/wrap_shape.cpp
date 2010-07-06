@@ -1,6 +1,4 @@
-#include "wrap_shape.hpp"
-
-#include "wrap_vertex_array.hpp"
+#include "vertex_array.hpp"
 
 #include <boost/python.hpp>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>

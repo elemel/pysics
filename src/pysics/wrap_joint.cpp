@@ -1,4 +1,4 @@
-#include "wrap_joint.hpp"
+#include "operator.hpp"
 
 #include <boost/python.hpp>
 #include <Box2D/Dynamics/b2Body.h>
@@ -16,23 +16,6 @@
 using namespace boost::python;
 
 namespace pysics {
-    namespace {
-        bool joint_eq(b2Joint *left, b2Joint *right)
-        {
-            return left == right;
-        }
-
-        bool joint_ne(b2Joint *left, b2Joint *right)
-        {
-            return left != right;
-        }
-
-        std::size_t hash_joint(b2Joint *joint)
-        {
-            return reinterpret_cast<std::size_t>(joint);
-        }
-    }
-
     void wrap_joint_type()
     {
         enum_<b2JointType>("JointType")
@@ -53,9 +36,9 @@ namespace pysics {
     void wrap_joint()
     {
         class_<b2Joint, boost::noncopyable>("Joint", no_init)
-            .def("__eq__", &joint_eq)
-            .def("__ne__", &joint_ne)
-            .def("__hash__", &hash_joint)
+            .def("__eq__", &eq_ptr<b2Joint>)
+            .def("__ne__", &ne_ptr<b2Joint>)
+            .def("__hash__", &hash_ptr<b2Joint>)
 
             .add_property("type", &b2Joint::GetType)
             .add_property("body_a", make_function(&b2Joint::GetBodyA, return_internal_reference<>()))

@@ -1,4 +1,4 @@
-#include "wrap_fixture.hpp"
+#include "operator.hpp"
 
 #include <boost/python.hpp>
 #include <Box2D/Dynamics/b2Fixture.h>
@@ -42,21 +42,6 @@ namespace pysics {
             filter.groupIndex = group_index;
             fixture->SetFilterData(filter);
         }
-
-        bool fixture_eq(b2Fixture *left, b2Fixture *right)
-        {
-            return left == right;
-        }
-
-        bool fixture_ne(b2Fixture *left, b2Fixture *right)
-        {
-            return left != right;
-        }
-
-        std::size_t hash_fixture(b2Fixture *fixture)
-        {
-            return reinterpret_cast<std::size_t>(fixture);
-        }
     }
 
     void wrap_fixture()
@@ -66,9 +51,9 @@ namespace pysics {
         b2Fixture *(b2Fixture::*get_next)() = &b2Fixture::GetNext;
 
         class_<b2Fixture, boost::noncopyable>("Fixture", no_init)
-            .def("__eq__", &fixture_eq)
-            .def("__ne__", &fixture_ne)
-            .def("__hash__", &hash_fixture)
+            .def("__eq__", &eq_ptr<b2Fixture>)
+            .def("__ne__", &ne_ptr<b2Fixture>)
+            .def("__hash__", &hash_ptr<b2Fixture>)
 
             .add_property("type", &b2Fixture::GetType)
             .add_property("shape", make_function(get_shape, return_internal_reference<>()))

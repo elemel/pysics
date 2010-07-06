@@ -1,5 +1,3 @@
-#include "wrap_debug_draw.hpp"
-
 #include <boost/python.hpp>
 #include <Box2D/Common/b2Math.h>
 #include <Box2D/Dynamics/b2WorldCallbacks.h>

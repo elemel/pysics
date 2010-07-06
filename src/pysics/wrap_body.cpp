@@ -1,7 +1,6 @@
-#include "wrap_body.hpp"
-
 #include "convert.hpp"
-#include "wrap_vertex_array.hpp"
+#include "operator.hpp"
+#include "vertex_array.hpp"
 
 #include <boost/python.hpp>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
@@ -235,24 +234,6 @@ namespace pysics {
             mass_data.center = local_center;
             mass_data.I = inertia;
             body->SetMassData(&mass_data);
-        }
-
-        template <typename T>
-        bool eq_ptr(const T *left, const T *right)
-        {
-            return left == right;
-        }
-
-        template <typename T>
-        bool ne_ptr(const T *left, const T *right)
-        {
-            return left != right;
-        }
-
-        template <typename T>
-        std::size_t hash_ptr(const T *ptr)
-        {
-            return reinterpret_cast<std::size_t>(ptr);
         }
     }
 

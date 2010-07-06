@@ -1,17 +1,9 @@
-#include "wrap_body.hpp"
-#include "wrap_debug_draw.hpp"
-#include "wrap_exception.hpp"
-#include "wrap_fixture.hpp"
-#include "wrap_joint.hpp"
-#include "wrap_shape.hpp"
-#include "wrap_vec_2.hpp"
-#include "wrap_vertex_array.hpp"
-#include "wrap_world.hpp"
+#include "pysics.hpp"
 
 #include <boost/python.hpp>
 
-using namespace pysics;
 using namespace boost::python;
+using namespace pysics;
 
 BOOST_PYTHON_MODULE(pysics)
 {

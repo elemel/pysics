@@ -1,5 +1,5 @@
-#ifndef PYSICS_WRAP_VERTEX_ARRAY_HPP
-#define PYSICS_WRAP_VERTEX_ARRAY_HPP
+#ifndef PYSICS_VERTEX_ARRAY_HPP
+#define PYSICS_VERTEX_ARRAY_HPP
 
 #include "shared_array_range.hpp"
 
@@ -7,8 +7,6 @@
 
 namespace pysics {
     typedef shared_array_range<b2Vec2> VertexArray;
-
-    void wrap_vertex_array();
 }
 
 #endif
