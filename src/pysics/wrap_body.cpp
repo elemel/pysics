@@ -228,6 +228,15 @@ namespace pysics {
             return body->CreateFixture(&fixture_def);
         }
 
+        void set_mass_data(b2Body *body, float32 mass, b2Vec2 local_center, float32 inertia)
+        {
+            b2MassData mass_data;
+            mass_data.mass = mass;
+            mass_data.center = local_center;
+            mass_data.I = inertia;
+            body->SetMassData(&mass_data);
+        }
+
         bool body_eq(b2Body *left, b2Body *right)
         {
             return left == right;
@@ -274,7 +283,6 @@ namespace pysics {
             .add_property("angular_velocity", &b2Body::GetAngularVelocity, &b2Body::SetAngularVelocity)
             .add_property("mass", &b2Body::GetMass)
             .add_property("inertia", &b2Body::GetInertia)
-            .add_property("mass_data", &b2Body::GetMassData, &b2Body::SetMassData)
             .add_property("linear_damping", &b2Body::GetLinearDamping, &b2Body::SetLinearDamping)
             .add_property("angular_damping", &b2Body::GetAngularDamping, &b2Body::SetAngularDamping)
             .add_property("type", &b2Body::GetType, &b2Body::SetType)
@@ -366,6 +374,7 @@ namespace pysics {
             .def("apply_torque", &b2Body::ApplyTorque)
             .def("apply_linear_impulse", &b2Body::ApplyLinearImpulse)
             .def("apply_angular_impulse", &b2Body::ApplyAngularImpulse)
+            .def("set_mass_data", &set_mass_data)
             .def("reset_mass_data", &b2Body::ResetMassData)
             .def("get_world_point", &b2Body::GetWorldPoint)
             .def("get_world_vector", &b2Body::GetWorldVector)
