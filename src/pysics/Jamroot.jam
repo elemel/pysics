@@ -16,15 +16,15 @@ project : requirements <library>/boost/python//boost_python ;
 
 python-extension pysics : pysics.cpp
 
-    wrap_body.cpp
-    wrap_debug_draw.cpp
-    wrap_exception.cpp
-    wrap_fixture.cpp
-    wrap_joint.cpp
-    wrap_shape.cpp
-    wrap_vec_2.cpp
-    wrap_vertex_array.cpp
-    wrap_world.cpp
+    body.cpp
+    debug_draw.cpp
+    exception.cpp
+    fixture.cpp
+    joint.cpp
+    shape.cpp
+    vec_2.cpp
+    vertex_array.cpp
+    world.cpp
 
     ../ext/box2d/Box2D/Box2D/libBox2D.a : <include>../ext/box2d/Box2D ;
 
