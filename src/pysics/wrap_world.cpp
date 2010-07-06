@@ -25,7 +25,7 @@ namespace pysics {
         {
             list bodies;
             for (b2Body *body = world->GetBodyList(); body; body = body->GetNext()) {
-                bodies.append(convert_raw_ptr(body));
+                bodies.append(convert_ptr(body));
             }
             return bodies;
         }
@@ -34,7 +34,7 @@ namespace pysics {
         {
             list joints;
             for (b2Joint *joint = world->GetJointList(); joint; joint = joint->GetNext()) {
-                joints.append(convert_raw_ptr(joint));
+                joints.append(convert_ptr(joint));
             }
             return joints;
         }
@@ -243,7 +243,7 @@ namespace pysics {
 
             bool ReportFixture(b2Fixture *fixture)
             {
-                result_.append(convert_raw_ptr(fixture));
+                result_.append(convert_ptr(fixture));
                 return true;
             }
         };

@@ -25,7 +25,7 @@ namespace pysics {
                  fixture;
                  fixture = fixture->GetNext())
             {
-                fixtures.append(convert_raw_ptr(fixture));
+                fixtures.append(convert_ptr(fixture));
             }
             return fixtures;
         }
@@ -37,7 +37,7 @@ namespace pysics {
                  joint_edge;
                  joint_edge = joint_edge->next)
             {
-                joints.append(convert_raw_ptr(joint_edge->joint));
+                joints.append(convert_ptr(joint_edge->joint));
             }
             return joints;
         }
@@ -237,19 +237,22 @@ namespace pysics {
             body->SetMassData(&mass_data);
         }
 
-        bool body_eq(b2Body *left, b2Body *right)
+        template <typename T>
+        bool eq_ptr(const T *left, const T *right)
         {
             return left == right;
         }
 
-        bool body_ne(b2Body *left, b2Body *right)
+        template <typename T>
+        bool ne_ptr(const T *left, const T *right)
         {
             return left != right;
         }
 
-        std::size_t hash_body(b2Body *body)
+        template <typename T>
+        std::size_t hash_ptr(const T *ptr)
         {
-            return reinterpret_cast<std::size_t>(body);
+            return reinterpret_cast<std::size_t>(ptr);
         }
     }
 
@@ -270,9 +273,9 @@ namespace pysics {
         b2World *(b2Body::*get_world)() = &b2Body::GetWorld;
 
         class_<b2Body, boost::noncopyable>("Body", no_init)
-            .def("__eq__", &body_eq)
-            .def("__ne__", &body_ne)
-            .def("__hash__", &hash_body)
+            .def("__eq__", &eq_ptr<b2Body>)
+            .def("__ne__", &ne_ptr<b2Body>)
+            .def("__hash__", &hash_ptr<b2Body>)
 
             .add_property("transform", make_function(&b2Body::GetTransform, return_value_policy<copy_const_reference>()), &b2Body::SetTransform)
             .add_property("position", make_function(&b2Body::GetPosition, return_value_policy<copy_const_reference>()))
