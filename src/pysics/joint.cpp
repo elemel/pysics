@@ -105,6 +105,17 @@ namespace pysics {
 
     void wrap_pulley_joint()
     {
+        class_<b2PulleyJoint, bases<b2Joint> >("PulleyJoint", no_init)
+            .add_property("anchor_a", &b2PulleyJoint::GetAnchorA)
+            .add_property("anchor_b", &b2PulleyJoint::GetAnchorB)
+            .add_property("reaction_force", &b2PrismaticJoint::GetReactionForce)
+            .add_property("reaction_torque", &b2PrismaticJoint::GetReactionTorque)
+            .add_property("ground_anchor_a", &b2PulleyJoint::GetGroundAnchorA)
+            .add_property("ground_anchor_b", &b2PulleyJoint::GetGroundAnchorB)
+            .add_property("length_1", &b2PulleyJoint::GetLength1)
+            .add_property("length_2", &b2PulleyJoint::GetLength2)
+            .add_property("ratio", &b2PulleyJoint::GetRatio)
+        ;
     }
 
     void wrap_mouse_joint()
