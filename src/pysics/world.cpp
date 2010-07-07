@@ -195,21 +195,62 @@ namespace pysics {
             return world->CreateJoint(&gear_joint_def);
         }
 
-        b2Joint *create_line_joint(b2World *world)
+        b2Joint *create_line_joint(b2World *world,
+                                   b2Body *body_a,
+                                   b2Body *body_b,
+                                   b2Vec2 anchor,
+                                   b2Vec2 axis,
+                                   bool limit_enabled,
+                                   float32 lower_translation,
+                                   float32 upper_translation,
+                                   bool motor_enabled,
+                                   float32 max_motor_force,
+                                   float32 motor_speed,
+                                   b2UserData user_data,
+                                   bool collide_connected)
         {
             b2LineJointDef line_joint_def;
+            line_joint_def.Initialize(body_a, body_b, anchor, axis);
+            line_joint_def.enableLimit = limit_enabled;
+            line_joint_def.lowerTranslation = lower_translation;
+            line_joint_def.upperTranslation = upper_translation;
+            line_joint_def.enableMotor = motor_enabled;
+            line_joint_def.maxMotorForce = max_motor_force;
+            line_joint_def.motorSpeed = motor_speed;
+            line_joint_def.userData = user_data;
+            line_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&line_joint_def);
         }
 
-        b2Joint *create_weld_joint(b2World *world)
+        b2Joint *create_weld_joint(b2World *world,
+                                   b2Body *body_a,
+                                   b2Body *body_b,
+                                   b2Vec2 anchor,
+                                   b2UserData user_data,
+                                   bool collide_connected)
         {
             b2WeldJointDef weld_joint_def;
+            weld_joint_def.Initialize(body_a, body_b, anchor);
+            weld_joint_def.userData = user_data;
+            weld_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&weld_joint_def);
         }
 
-        b2Joint *create_friction_joint(b2World *world)
+        b2Joint *create_friction_joint(b2World *world,
+                                       b2Body *body_a,
+                                       b2Body *body_b,
+                                       b2Vec2 anchor,
+                                       float32 max_force,
+                                       float32 max_torque,
+                                       b2UserData user_data,
+                                       bool collide_connected)
         {
             b2FrictionJointDef friction_joint_def;
+            friction_joint_def.Initialize(body_a, body_b, anchor);
+            friction_joint_def.maxForce = max_force;
+            friction_joint_def.maxTorque = max_torque;
+            friction_joint_def.userData = user_data;
+            friction_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&friction_joint_def);
         }
 
@@ -381,9 +422,36 @@ namespace pysics {
             .def("create_pulley_joint", &create_pulley_joint, return_internal_reference<>())
             .def("create_mouse_joint", &create_mouse_joint, return_internal_reference<>())
             .def("create_gear_joint", &create_gear_joint, return_internal_reference<>())
-            .def("create_line_joint", &create_line_joint, return_internal_reference<>())
-            .def("create_weld_joint", &create_weld_joint, return_internal_reference<>())
-            .def("create_friction_joint", &create_friction_joint, return_internal_reference<>())
+            .def("create_line_joint", &create_line_joint, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("body_a"),
+                  arg("body_b"),
+                  arg("anchor"),
+                  arg("axis"),
+                  arg("limit_enabled")=false,
+                  arg("lower_translation")=0.0f,
+                  arg("upper_translation")=0.0f,
+                  arg("motor_enabled")=false,
+                  arg("max_motor_force")=0.0f,
+                  arg("motor_speed")=0.0f,
+                  arg("user_data")=object(),
+                  arg("collide_connected")=false))
+            .def("create_weld_joint", &create_weld_joint, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("body_a"),
+                  arg("body_b"),
+                  arg("anchor"),
+                  arg("user_data")=object(),
+                  arg("collide_connected")=false))
+            .def("create_friction_joint", &create_friction_joint, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("body_a"),
+                  arg("body_b"),
+                  arg("anchor"),
+                  arg("max_force")=0.0f,
+                  arg("max_force")=0.0f,
+                  arg("user_data")=object(),
+                  arg("collide_connected")=false))
             .def("destroy_joint", &b2World::DestroyJoint)
             .def("step", &b2World::Step)
             .def("clear_forces", &b2World::ClearForces)
