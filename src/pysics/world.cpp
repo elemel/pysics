@@ -163,8 +163,8 @@ namespace pysics {
                                        b2Body *body_b,
                                        b2Vec2 anchor_a,
                                        b2Vec2 anchor_b,
-                                       float frequency,
-                                       float damping_ratio,
+                                       float32 frequency,
+                                       float32 damping_ratio,
                                        b2UserData user_data,
                                        bool collide_connected)
         {
@@ -183,9 +183,23 @@ namespace pysics {
             return world->CreateJoint(&pulley_joint_def);
         }
 
-        b2Joint *create_mouse_joint(b2World *world)
+        b2Joint *create_mouse_joint(b2World *world,
+                                    b2Body *body,
+                                    b2Vec2 target,
+                                    float32 max_force,
+                                    float32 frequency,
+                                    float32 damping_ratio,
+                                    b2UserData user_data,
+                                    bool collide_connected)
         {
             b2MouseJointDef mouse_joint_def;
+            mouse_joint_def.bodyB = body;
+            mouse_joint_def.target = target;
+            mouse_joint_def.maxForce = max_force;
+            mouse_joint_def.frequencyHz = frequency;
+            mouse_joint_def.dampingRatio = damping_ratio;
+            mouse_joint_def.userData = user_data;
+            mouse_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&mouse_joint_def);
         }
 
@@ -420,7 +434,15 @@ namespace pysics {
                   arg("user_data")=object(),
                   arg("collide_connected")=false))
             .def("create_pulley_joint", &create_pulley_joint, return_internal_reference<>())
-            .def("create_mouse_joint", &create_mouse_joint, return_internal_reference<>())
+            .def("create_mouse_joint", &create_mouse_joint, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("body"),
+                  arg("target"),
+                  arg("max_force")=0.0f,
+                  arg("frequency")=5.0f,
+                  arg("damping_ratio")=0.7f,
+                  arg("user_data")=object(),
+                  arg("collide_connected")=false))
             .def("create_gear_joint", &create_gear_joint, return_internal_reference<>())
             .def("create_line_joint", &create_line_joint, return_internal_reference<>(),
                  (arg("self"),
