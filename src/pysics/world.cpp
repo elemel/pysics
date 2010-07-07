@@ -19,19 +19,23 @@ using namespace boost::python;
 
 namespace pysics {
     namespace {
-        list get_bodies(b2World *world)
-        {
+        list get_bodies(b2World *world) {
             list bodies;
-            for (b2Body *body = world->GetBodyList(); body; body = body->GetNext()) {
+            for (b2Body *body = world->GetBodyList();
+                 body;
+                 body = body->GetNext())
+            {
                 bodies.append(convert_ptr(body));
             }
             return bodies;
         }
 
-        list get_joints(b2World *world)
-        {
+        list get_joints(b2World *world) {
             list joints;
-            for (b2Joint *joint = world->GetJointList(); joint; joint = joint->GetNext()) {
+            for (b2Joint *joint = world->GetJointList();
+                 joint;
+                 joint = joint->GetNext())
+            {
                 joints.append(convert_ptr(joint));
             }
             return joints;
@@ -177,9 +181,23 @@ namespace pysics {
             return world->CreateJoint(&distance_joint_def);
         }
 
-        b2Joint *create_pulley_joint(b2World *world)
+        b2Joint *create_pulley_joint(b2World *world,
+                                     b2Body *body_a,
+                                     b2Body *body_b,
+                                     b2Vec2 ground_anchor_a,
+                                     b2Vec2 ground_anchor_b,
+                                     b2Vec2 anchor_a,
+                                     b2Vec2 anchor_b,
+                                     float32 ratio,
+                                     b2UserData user_data,
+                                     bool collide_connected)
         {
             b2PulleyJointDef pulley_joint_def;
+            pulley_joint_def.Initialize(body_a, body_b, ground_anchor_a,
+                                        ground_anchor_b, anchor_a, anchor_b,
+                                        ratio);
+            pulley_joint_def.userData = user_data;
+            pulley_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&pulley_joint_def);
         }
 
@@ -203,9 +221,19 @@ namespace pysics {
             return world->CreateJoint(&mouse_joint_def);
         }
 
-        b2Joint *create_gear_joint(b2World *world)
+        b2Joint *create_gear_joint(b2World *world,
+                                   b2Joint *joint_a,
+                                   b2Joint *joint_b,
+                                   float32 ratio,
+                                   b2UserData user_data,
+                                   bool collide_connected)
         {
             b2GearJointDef gear_joint_def;
+            gear_joint_def.joint1 = joint_a;
+            gear_joint_def.joint2 = joint_b;
+            gear_joint_def.ratio = ratio;
+            gear_joint_def.userData = user_data;
+            gear_joint_def.collideConnected = collide_connected;
             return world->CreateJoint(&gear_joint_def);
         }
 
@@ -275,13 +303,14 @@ namespace pysics {
             : callback_(callback)
             { }
 
-            bool ReportFixture(b2Fixture *fixture)
-            {
+            bool ReportFixture(b2Fixture *fixture) {
                 return callback_(fixture);
             }
         };
 
-        void query_aabb_1(b2World *world, object callback, b2Vec2 lower_bound,
+        void query_aabb_1(b2World *world,
+                          object callback,
+                          b2Vec2 lower_bound,
                           b2Vec2 upper_bound)
         {
             QueryCallbackWrapper1 callback_wrapper(callback);
@@ -294,14 +323,15 @@ namespace pysics {
         struct QueryCallbackWrapper2 : b2QueryCallback {
             list result_;
 
-            bool ReportFixture(b2Fixture *fixture)
-            {
+            bool ReportFixture(b2Fixture *fixture) {
                 result_.append(convert_ptr(fixture));
                 return true;
             }
         };
 
-        list query_aabb_2(b2World *world, b2Vec2 lower_bound, b2Vec2 upper_bound)
+        list query_aabb_2(b2World *world,
+                          b2Vec2 lower_bound,
+                          b2Vec2 upper_bound)
         {
             QueryCallbackWrapper2 callback_wrapper;
             b2AABB aabb;
@@ -312,8 +342,7 @@ namespace pysics {
         }
     }
 
-    void wrap_world()
-    {
+    void wrap_world() {
         class_<b2World>("World", init<b2Vec2, bool>())
             .add_property("destruction_listener", object(), &b2World::SetDestructionListener)
             .add_property("contact_filter", object(), &b2World::SetContactFilter)
@@ -433,7 +462,17 @@ namespace pysics {
                   arg("damping_ratio")=0.0f,
                   arg("user_data")=object(),
                   arg("collide_connected")=false))
-            .def("create_pulley_joint", &create_pulley_joint, return_internal_reference<>())
+            .def("create_pulley_joint", &create_pulley_joint, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("body_a"),
+                  arg("body_b"),
+                  arg("ground_anchor_a"),
+                  arg("ground_anchor_b"),
+                  arg("anchor_a"),
+                  arg("anchor_b"),
+                  arg("ratio")=0.0f,
+                  arg("user_data")=object(),
+                  arg("collide_connected")=false))
             .def("create_mouse_joint", &create_mouse_joint, return_internal_reference<>(),
                  (arg("self"),
                   arg("body"),
@@ -443,7 +482,13 @@ namespace pysics {
                   arg("damping_ratio")=0.7f,
                   arg("user_data")=object(),
                   arg("collide_connected")=false))
-            .def("create_gear_joint", &create_gear_joint, return_internal_reference<>())
+            .def("create_gear_joint", &create_gear_joint, return_internal_reference<>(),
+                 (arg("self"),
+                  arg("joint_a"),
+                  arg("joint_b"),
+                  arg("ratio"),
+                  arg("user_data")=object(),
+                  arg("collide_connected")=false))
             .def("create_line_joint", &create_line_joint, return_internal_reference<>(),
                  (arg("self"),
                   arg("body_a"),
