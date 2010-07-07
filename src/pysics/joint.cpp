@@ -95,9 +95,9 @@ namespace pysics {
         class_<b2DistanceJoint, bases<b2Joint> >("DistanceJoint", no_init)
             .add_property("anchor_a", &b2DistanceJoint::GetAnchorA)
             .add_property("anchor_b", &b2DistanceJoint::GetAnchorB)
+            .add_property("reaction_force", &b2PrismaticJoint::GetReactionForce)
+            .add_property("reaction_torque", &b2PrismaticJoint::GetReactionTorque)
             .add_property("length", &b2DistanceJoint::GetLength, &b2DistanceJoint::SetLength)
-            .add_property("reaction_force", &b2DistanceJoint::GetReactionForce)
-            .add_property("reaction_torque", &b2DistanceJoint::GetReactionTorque)
             .add_property("frequency", &b2DistanceJoint::GetFrequency, &b2DistanceJoint::SetFrequency)
             .add_property("damping_ratio", &b2DistanceJoint::GetDampingRatio, &b2DistanceJoint::SetDampingRatio)
         ;
@@ -120,6 +120,16 @@ namespace pysics {
 
     void wrap_mouse_joint()
     {
+        class_<b2MouseJoint, bases<b2Joint> >("MouseJoint", no_init)
+            .add_property("anchor_a", &b2MouseJoint::GetAnchorA)
+            .add_property("anchor_b", &b2MouseJoint::GetAnchorB)
+            .add_property("reaction_force", &b2MouseJoint::GetReactionForce)
+            .add_property("reaction_torque", &b2MouseJoint::GetReactionTorque)
+            .add_property("target", make_function(&b2MouseJoint::GetTarget, return_value_policy<copy_const_reference>()), &b2MouseJoint::SetTarget)
+            .add_property("max_force", &b2MouseJoint::GetMaxForce, &b2MouseJoint::SetMaxForce)
+            .add_property("frequency", &b2MouseJoint::GetFrequency, &b2MouseJoint::SetFrequency)
+            .add_property("damping_ratio", &b2MouseJoint::GetDampingRatio, &b2MouseJoint::SetDampingRatio)
+        ;
     }
 
     void wrap_gear_joint()
