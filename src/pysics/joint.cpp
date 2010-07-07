@@ -134,17 +134,55 @@ namespace pysics {
 
     void wrap_gear_joint()
     {
+        class_<b2GearJoint, bases<b2Joint> >("GearJoint", no_init)
+            .add_property("anchor_a", &b2GearJoint::GetAnchorA)
+            .add_property("anchor_b", &b2GearJoint::GetAnchorB)
+            .add_property("reaction_force", &b2GearJoint::GetReactionForce)
+            .add_property("reaction_torque", &b2GearJoint::GetReactionTorque)
+            .add_property("ratio", &b2GearJoint::GetRatio, &b2GearJoint::SetRatio)
+        ;
     }
 
     void wrap_line_joint()
     {
+        class_<b2LineJoint, bases<b2Joint> >("LineJoint", no_init)
+            .add_property("anchor_a", &b2LineJoint::GetAnchorA)
+            .add_property("anchor_b", &b2LineJoint::GetAnchorB)
+            .add_property("reaction_force", &b2LineJoint::GetReactionForce)
+            .add_property("reaction_torque", &b2LineJoint::GetReactionTorque)
+            .add_property("joint_translation", &b2LineJoint::GetJointTranslation)
+            .add_property("joint_speed", &b2LineJoint::GetJointSpeed)
+            .add_property("limit_enabled", &b2LineJoint::IsLimitEnabled, &b2LineJoint::EnableLimit)
+            .add_property("lower_limit", &b2LineJoint::GetLowerLimit)
+            .add_property("upper_limit", &b2LineJoint::GetUpperLimit)
+            .add_property("motor_enabled", &b2LineJoint::IsMotorEnabled, &b2LineJoint::EnableMotor)
+            .add_property("motor_speed", &b2LineJoint::GetMotorSpeed, &b2LineJoint::SetMotorSpeed)
+            .add_property("motor_force", &b2LineJoint::GetMotorForce)
+            .add_property("max_motor_force", object(), &b2LineJoint::SetMaxMotorForce)
+
+            .def("set_limits", &b2LineJoint::SetLimits)
+        ;
     }
 
     void wrap_weld_joint()
     {
+        class_<b2WeldJoint, bases<b2Joint> >("WeldJoint", no_init)
+            .add_property("anchor_a", &b2WeldJoint::GetAnchorA)
+            .add_property("anchor_b", &b2WeldJoint::GetAnchorB)
+            .add_property("reaction_force", &b2WeldJoint::GetReactionForce)
+            .add_property("reaction_torque", &b2WeldJoint::GetReactionTorque)
+        ;
     }
 
     void wrap_friction_joint()
     {
+        class_<b2FrictionJoint, bases<b2Joint> >("FrictionJoint", no_init)
+            .add_property("anchor_a", &b2FrictionJoint::GetAnchorA)
+            .add_property("anchor_b", &b2FrictionJoint::GetAnchorB)
+            .add_property("reaction_force", &b2FrictionJoint::GetReactionForce)
+            .add_property("reaction_torque", &b2FrictionJoint::GetReactionTorque)
+            .add_property("max_force", &b2FrictionJoint::GetMaxForce, &b2FrictionJoint::SetMaxForce)
+            .add_property("max_torque", &b2FrictionJoint::GetMaxTorque, &b2FrictionJoint::SetMaxTorque)
+        ;
     }
 }
