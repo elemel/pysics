@@ -124,6 +124,9 @@ class BodyLoader(Loader):
             self.body.create_polygon_fixture(vertices=vertices,
                                              **fixture_attributes)
 
+    def load(self):
+        pass
+
 class JointLoader(Loader):
     def __init__(self, world, bodies):
         self.world = world
@@ -199,7 +202,7 @@ class DocumentLoader(object):
         self.body_loader = None
         self.bodies = {}
         self.joint_loader = None
-        self.joint_loaders = []
+        self.loaders = []
 
     def load(self):
         document = minidom.parse(self.path)
@@ -209,8 +212,8 @@ class DocumentLoader(object):
         matrix = (pinky.Matrix.create_scale(0.01, -0.01) *
                   pinky.Matrix.create_translate(-0.5 * width, -0.5 * height))
         self.load_element(root, matrix, AttributeChain({}))
-        for joint_loader in self.joint_loaders:
-            joint_loader.load()
+        for loader in self.loaders:
+            loader.load()
 
     def load_element(self, element, matrix, attribute_chain):
         local_matrix = pinky.Matrix.from_string(element.getAttribute('transform'))
@@ -232,6 +235,7 @@ class DocumentLoader(object):
                     body_loader = BodyLoader(self.world, self.bodies,
                                              pysics.STATIC_BODY,
                                              attribute_chain)
+                    self.loaders.append(body_loader)
                 body_loader.add_shape(matrix, attribute_chain, shape)
             else:
                 self.joint_loader.add_shape(matrix, attribute_chain, shape)
@@ -257,19 +261,21 @@ class DocumentLoader(object):
             if self.body_loader is not None or self.joint_loader is not None:
                 raise Exception('body nested within body or joint')
             body_type = self.body_types[type_]
-            self.body_loader = BodyLoader(self.world, self.bodies, body_type,
-                                          attribute_chain)
+            body_loader = BodyLoader(self.world, self.bodies, body_type,
+                                     attribute_chain)
+            self.loaders.append(body_loader)
+            self.body_loader = body_loader
             yield
             self.body_loader = None
         elif type_ in self.joint_types:
             if self.body_loader is not None or self.joint_loader is not None:
                 raise Exception('joint nested within body or joint')
             joint_loader_factory = self.joint_types[type_]
-            self.joint_loader = joint_loader_factory(self.world,
-                                                     self.bodies,
-                                                     attribute_chain)
+            joint_loader = joint_loader_factory(self.world, self.bodies,
+                                                attribute_chain)
+            self.loaders.append(joint_loader)
+            self.joint_loader = joint_loader
             yield
-            self.joint_loaders.append(self.joint_loader)
             self.joint_loader = None
         else:
             yield
