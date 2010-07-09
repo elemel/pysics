@@ -177,11 +177,20 @@ class RevoluteJointLoader(JointLoader):
                     max_motor_torque=float(get('max-motor-torque', '0')),
                     collide_connected=parse_bool(get('collide-connected', 'false')))
 
+def create_static_body_loader(world, bodies, attribute_chain):
+    return BodyLoader(world, bodies, pysics.STATIC_BODY, attribute_chain)
+
+def create_kinematic_body_loader(world, bodies, attribute_chain):
+    return BodyLoader(world, bodies, pysics.KINEMATIC_BODY, attribute_chain)
+
+def create_dynamic_body_loader(world, bodies, attribute_chain):
+    return BodyLoader(world, bodies, pysics.DYNAMIC_BODY, attribute_chain)
+
 class DocumentLoader(object):
     body_types = {
-        'static-body': pysics.STATIC_BODY,
-        'kinematic-body': pysics.KINEMATIC_BODY,
-        'dynamic-body': pysics.DYNAMIC_BODY,
+        'static-body': create_static_body_loader,
+        'kinematic-body': create_kinematic_body_loader,
+        'dynamic-body': create_dynamic_body_loader,
     }
 
     joint_types = {
@@ -260,9 +269,9 @@ class DocumentLoader(object):
         if type_ in self.body_types:
             if self.body_loader is not None or self.joint_loader is not None:
                 raise Exception('body nested within body or joint')
-            body_type = self.body_types[type_]
-            body_loader = BodyLoader(self.world, self.bodies, body_type,
-                                     attribute_chain)
+            body_loader_factory = self.body_types[type_]
+            body_loader = body_loader_factory(self.world, self.bodies,
+                                              attribute_chain)
             self.loaders.append(body_loader)
             self.body_loader = body_loader
             yield
