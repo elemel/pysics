@@ -205,21 +205,19 @@ class DocumentLoader(object):
         'friction-joint': None,
     }
 
-    def __init__(self, path, world):
-        self.path = path
+    def __init__(self, root, world):
+        self.root = root
         self.world = world
         self.bodies = {}
         self.loader = None
         self.loaders = []
 
     def load(self):
-        document = minidom.parse(self.path)
-        root = document.documentElement
-        width = float(root.getAttribute('width'))
-        height = float(root.getAttribute('height'))
+        width = float(self.root.getAttribute('width'))
+        height = float(self.root.getAttribute('height'))
         matrix = (pinky.Matrix.create_scale(0.01, -0.01) *
                   pinky.Matrix.create_translate(-0.5 * width, -0.5 * height))
-        self.load_element(root, matrix, AttributeChain({}))
+        self.load_element(self.root, matrix, AttributeChain({}))
         for loader in self.loaders:
             loader.load()
 
@@ -314,7 +312,11 @@ class MyWindow(pyglet.window.Window):
         self.debug_draw = MyDebugDraw(pysics.SHAPE_BIT)
         self.world.debug_draw = self.debug_draw
         for path in paths:
-            DocumentLoader(path, self.world).load()
+            with open(path) as file_:
+                document = minidom.parse(file_)
+                root = document.documentElement
+                document_loader = DocumentLoader(root, self.world)
+                document_loader.load()
         self.clock_display = pyglet.clock.ClockDisplay()
         pyglet.clock.schedule_interval(self.step, 0.1 * self.world_dt)
 
