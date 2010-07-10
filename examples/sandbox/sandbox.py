@@ -189,13 +189,11 @@ def create_dynamic_body_loader(world, bodies, attribute_chain):
     return BodyLoader(world, bodies, pysics.DYNAMIC_BODY, attribute_chain)
 
 class DocumentLoader(object):
-    body_types = {
+    loader_factories = {
         'static-body': create_static_body_loader,
         'kinematic-body': create_kinematic_body_loader,
         'dynamic-body': create_dynamic_body_loader,
-    }
 
-    joint_types = {
         'revolute-joint': RevoluteJointLoader,
         'prismatic-joint': None,
         'distance-joint': None,
@@ -210,9 +208,8 @@ class DocumentLoader(object):
     def __init__(self, path, world):
         self.path = path
         self.world = world
-        self.body_loader = None
         self.bodies = {}
-        self.joint_loader = None
+        self.loader = None
         self.loaders = []
 
     def load(self):
@@ -240,16 +237,12 @@ class DocumentLoader(object):
     def load_shape(self, element, matrix, attribute_chain):
         shape = pinky.parse_shape(element)
         if shape is not None:
-            if self.joint_loader is None:
-                body_loader = self.body_loader
-                if body_loader is None:
-                    body_loader = BodyLoader(self.world, self.bodies,
-                                             pysics.STATIC_BODY,
-                                             attribute_chain)
-                    self.loaders.append(body_loader)
-                body_loader.add_shape(matrix, attribute_chain, shape)
-            else:
-                self.joint_loader.add_shape(matrix, attribute_chain, shape)
+            loader = self.loader
+            if loader is None:
+                loader = BodyLoader(self.world, self.bodies,
+                                    pysics.STATIC_BODY, attribute_chain)
+                self.loaders.append(loader)
+            loader.add_shape(matrix, attribute_chain, shape)
 
     def get_attributes(self, element):
         attributes = pinky.parse_style(element.getAttribute('style'))
@@ -270,26 +263,15 @@ class DocumentLoader(object):
     @contextmanager
     def manage_loader(self, attribute_chain):
         type_ = attribute_chain.attributes.get('type')
-        if type_ in self.body_types:
-            if self.body_loader is not None or self.joint_loader is not None:
-                raise Exception('body nested within body or joint')
-            body_loader_factory = self.body_types[type_]
-            body_loader = body_loader_factory(self.world, self.bodies,
-                                              attribute_chain)
-            self.loaders.append(body_loader)
-            self.body_loader = body_loader
+        if type_ in self.loader_factories:
+            if self.loader is not None:
+                raise Exception('body or joint nested within other body or joint')
+            loader_factory = self.loader_factories[type_]
+            loader = loader_factory(self.world, self.bodies, attribute_chain)
+            self.loaders.append(loader)
+            self.loader = loader
             yield
-            self.body_loader = None
-        elif type_ in self.joint_types:
-            if self.body_loader is not None or self.joint_loader is not None:
-                raise Exception('joint nested within body or joint')
-            joint_loader_factory = self.joint_types[type_]
-            joint_loader = joint_loader_factory(self.world, self.bodies,
-                                                attribute_chain)
-            self.loaders.append(joint_loader)
-            self.joint_loader = joint_loader
-            yield
-            self.joint_loader = None
+            self.loader = None
         else:
             yield
 
