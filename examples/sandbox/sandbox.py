@@ -151,7 +151,9 @@ class RevoluteJointLoader(JointLoader):
         if len(self.shapes) != 1 or not isinstance(self.shapes[0], pinky.Circle):
             raise TypeError('invalid shapes for revolute joint')
         anchor = self.shapes[0].cx, self.shapes[0].cy
-        bodies = [self.bodies[id_] for id_ in (self.body_a_id, self.body_b_id) if id_ is not None]
+        bodies = [self.bodies[id_]
+                  for id_ in (self.body_a_id, self.body_b_id)
+                  if id_ is not None]
         if len(bodies) < 2:
             for fixture in self.world.query_aabb(anchor, anchor):
                 if fixture.body not in bodies:
@@ -256,7 +258,9 @@ class DocumentLoader(object):
             attribute_node = attribute_nodes.item(i)
             attributes[attribute_node.localName] = attribute_node.nodeValue
         for child in element.childNodes:
-            if child.nodeType == child.ELEMENT_NODE and child.namespaceURI == pinky.SVG_NAMESPACE and child.localName == 'desc':
+            if (child.nodeType == child.ELEMENT_NODE and
+                child.namespaceURI == pinky.SVG_NAMESPACE and
+                child.localName == 'desc'):
                 if child.firstChild.nodeType == child.TEXT_NODE:
                     desc_attributes = pinky.parse_style(child.firstChild.nodeValue)
                     attributes.update(desc_attributes)
